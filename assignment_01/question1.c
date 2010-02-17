@@ -32,7 +32,7 @@ int main(void) {
 				if ( pow(a,2) + pow(b,2) == pow(c,2) ) {
 				/*    then we have a pythagorean triple: */
 					num_found++;
-					printf("result %3d :       a= %3d,  b= %3d,  c= %3d\n", num_found, a, b, c);
+					printf("result %3d : a= %3d, b= %3d, c= %3d\n", num_found, a, b, c);
 				}
 			}
 		}

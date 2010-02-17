@@ -35,7 +35,7 @@ int main(void) {
 	printf("     ** Recursive algorithm result: %8d **\n", gcd_recursive(x, y));
 	printf("     ** Iterative algorithm result: %8d **\n", gcd_iterative(x, y));
 
-	printf("\n\n");
+	printf("\n");
 	return 0; /* exit successfully */
 }
 
