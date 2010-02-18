@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "prompt.c"
-
 /* 
  * Program to find Knight's Tours of a Chessboard
  * ==============================================
@@ -15,15 +10,19 @@
  *
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+
+
+#include "prompt.c"
+
+
 void init_chessboard(int chessboard[8][8]);
 void build_accessibility(int chessboard[8][8], int accessibility[8][8]);
 void print_chessboard(int chessboard[8][8]);
 int is_valid_move( int chessboard[8][8], int row, int col, int move );
 int move_row( int row, int move );
 int move_col( int col, int move );
-
-
-
 
 
 int main(void) {
@@ -131,6 +130,7 @@ int main(void) {
 	return 0; /* exit successfully */
 }
 
+
 void init_chessboard(int chessboard[8][8]) {
 	int i, j;
 	for (i=0; i<8; i++) {
@@ -139,6 +139,7 @@ void init_chessboard(int chessboard[8][8]) {
 		}
 	}
 }
+
 
 void build_accessibility(int chessboard[8][8], int accessibility[8][8]) {
 	int i, j, k;
@@ -155,6 +156,7 @@ void build_accessibility(int chessboard[8][8], int accessibility[8][8]) {
 	}
 }
 
+
 int move_row( int row, int move ) {
 	int horizontal[8];
 	horizontal[ 0 ] =  2; horizontal[ 1 ] =  1; horizontal[ 2 ] = -1; horizontal[ 3 ] = -2;
@@ -162,12 +164,14 @@ int move_row( int row, int move ) {
 	return row + horizontal[ move ];
 }
 
+
 int move_col( int col, int move ) {
 	int vertical[8];
 	vertical[ 0 ] = -1; vertical[ 1 ] = -2; vertical[ 2 ] = -2; vertical[ 3 ] = -1;
 	vertical[ 4 ] =  1; vertical[ 5 ] =  2; vertical[ 6 ] =  2; vertical[ 7 ] =  1;
 	return col + vertical[ move ];
 }
+
 
 int is_valid_move( int chessboard[8][8], int row, int col, int move ) {
 	row = move_row( row, move );
@@ -183,6 +187,7 @@ int is_valid_move( int chessboard[8][8], int row, int col, int move ) {
 	}
 }
 
+
 void print_chessboard(int chessboard[8][8]) {
 	int i, j;
 	for (i=0; i<8; i++) {
@@ -192,13 +197,13 @@ void print_chessboard(int chessboard[8][8]) {
 				case -1: /* Knight is on this square */
 					printf("| K ");
 					break;
-				case  0: /* blank / empty squares */
+				case  0: /* define 0 as 'empty square' value */
 					printf("|   ");
 					break;
-				case -2: /* print row/col numbers */
+				case -2: /* special case: print row/col numbers */
 					printf("|%d,%d", i, j);
 					break;
-				default:
+				default: /* normally, just print the value in the square */
 					printf("|%2d ", chessboard[i][j]);
 					break;
 			}

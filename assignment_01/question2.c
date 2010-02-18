@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 /* 
  * Program to find Perfect Numbers
  * ===================================
@@ -17,6 +15,8 @@
  *
  * Finds all such numbers between 1 and 10000.
  */
+
+#include <stdio.h>
 
 
 int main(void) {

@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <math.h>
-
 /* 
  * Program to find Pythagorean Triples
  * ===================================
@@ -17,6 +14,10 @@
  *
  * Treats (3, 4, 5) and (4, 3, 5) as distinct triples.
  */
+
+#include <stdio.h>
+#include <math.h>
+
 
 int main(void) {
 

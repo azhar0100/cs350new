@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "prompt.c"
-
 /* 
  * Program to find Greatest Common Divisor
  * ==============================================
@@ -14,6 +9,12 @@
  * -------------------------
  *
  */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+
+#include "prompt.c"
 
 
 int gcd_recursive(int x, int y);
@@ -51,6 +52,7 @@ int gcd_iterative(int x, int y) {
 	}
 	return x;
 }
+
 
 int gcd_recursive(int x, int y) {
 	if ( y == 0 ) {

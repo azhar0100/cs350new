@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 /* 
  * Simple routines to prompt the user for input (using scanf)
  * ==========================================================
@@ -10,6 +7,9 @@
  *
  * This file is intended as a sort of library.
  */
+
+#include <stdio.h>
+#include <stdlib.h>
 
 
 int int_prompt(char* prompt_string) {
