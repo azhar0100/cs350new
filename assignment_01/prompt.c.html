@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>~/cs350/assignment_01/prompt.c.html</title>
+<meta name="Generator" content="Vim/7.2">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#000000" text="#ffffff"><font face="monospace">
+<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;</b></font><br>
+<font color="#00ffff"><b>&nbsp;* Simple routines to prompt the user for input (using scanf)</b></font><br>
+<font color="#00ffff"><b>&nbsp;* ==========================================================</b></font><br>
+<font color="#00ffff"><b>&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;By:&nbsp;&nbsp;&nbsp;&nbsp; Paul A. Prince</b></font><br>
+<font color="#00ffff"><b>&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For:&nbsp;&nbsp;&nbsp;&nbsp;WVU CS 350 - Donald Adjeroh</b></font><br>
+<font color="#00ffff"><b>&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date:&nbsp;&nbsp; 2010-02-10 (created)</b></font><br>
+<font color="#00ffff"><b>&nbsp;*</b></font><br>
+<font color="#00ffff"><b>&nbsp;* This file is intended as a sort of library.</b></font><br>
+<font color="#00ffff"><b>&nbsp;</b></font><font color="#00ffff"><b>*/</b></font><br>
+<br>
+<font color="#c000c0">#include </font><font color="#ff40ff"><b>&lt;stdio.h&gt;</b></font><br>
+<font color="#c000c0">#include </font><font color="#ff40ff"><b>&lt;stdlib.h&gt;</b></font><br>
+<br>
+<br>
+<font color="#cdff8b"><b>int</b></font>&nbsp;int_prompt(<font color="#cdff8b"><b>char</b></font>* prompt_string) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;scanf() can be tricky to make behave properly.</b></font><br>
+<font color="#00ffff"><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * reference: <a href="http://bytes.com/topic/c/answers/212167-help-infinite-loops-scanf">http://bytes.com/topic/c/answers/212167-help-infinite-loops-scanf</a> </b></font><font color="#00ffff"><b>*/</b></font><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;prompt_answer;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;scanf_return;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>while</b></font>(<font color="#ff40ff"><b>1</b></font>) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ff40ff"><b>&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;</b></font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(prompt_string);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ff40ff"><b>&quot; : &quot;</b></font>);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fflush(<font color="#ff40ff"><b>stdout</b></font>);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;scanf_return = scanf(<font color="#ff40ff"><b>&quot;</b></font><font color="#ff6060"><b>%d%*[^\n]</b></font><font color="#ff40ff"><b>&quot;</b></font>, &amp;prompt_answer);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>if</b></font>&nbsp;( scanf_return == <font color="#ff40ff"><b>1</b></font>&nbsp;) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>return</b></font>(prompt_answer);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <font color="#ffff00"><b>else</b></font>&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;clearerr(<font color="#ff40ff"><b>stdin</b></font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;scanf(<font color="#ff40ff"><b>&quot;</b></font><font color="#ff6060"><b>%*[^\n]</b></font><font color="#ff40ff"><b>&quot;</b></font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}<br>
+</font></body>
+</html>

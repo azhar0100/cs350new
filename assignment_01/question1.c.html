@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>~/cs350/assignment_01/question1.c.html</title>
+<meta name="Generator" content="Vim/7.2">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#000000" text="#ffffff"><font face="monospace">
+<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;</b></font><br>
+<font color="#00ffff"><b>&nbsp;* Program to find Pythagorean Triples</b></font><br>
+<font color="#00ffff"><b>&nbsp;* ===================================</b></font><br>
+<font color="#00ffff"><b>&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;By:&nbsp;&nbsp;&nbsp;&nbsp; Paul A. Prince</b></font><br>
+<font color="#00ffff"><b>&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For:&nbsp;&nbsp;&nbsp;&nbsp;WVU CS 350 - Donald Adjeroh</b></font><br>
+<font color="#00ffff"><b>&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date:&nbsp;&nbsp; 2010-02-10 (created)</b></font><br>
+<font color="#00ffff"><b>&nbsp;*</b></font><br>
+<font color="#00ffff"><b>&nbsp;* Assignment 1, Question 1:</b></font><br>
+<font color="#00ffff"><b>&nbsp;* -------------------------</b></font><br>
+<font color="#00ffff"><b>&nbsp;*</b></font><br>
+<font color="#00ffff"><b>&nbsp;* Pythagorean triple is: set of 3 integers (a, b, c) where a^2 + b^2 = c^2</b></font><br>
+<font color="#00ffff"><b>&nbsp;*</b></font><br>
+<font color="#00ffff"><b>&nbsp;* Finds all such triples where none of the 3 integers are &lt;1 or &gt;500.</b></font><br>
+<font color="#00ffff"><b>&nbsp;*</b></font><br>
+<font color="#00ffff"><b>&nbsp;* Treats (3, 4, 5) and (4, 3, 5) as distinct triples.</b></font><br>
+<font color="#00ffff"><b>&nbsp;</b></font><font color="#00ffff"><b>*/</b></font><br>
+<br>
+<font color="#c000c0">#include </font><font color="#ff40ff"><b>&lt;stdio.h&gt;</b></font><br>
+<font color="#c000c0">#include </font><font color="#ff40ff"><b>&lt;math.h&gt;</b></font><br>
+<br>
+<br>
+<font color="#cdff8b"><b>int</b></font>&nbsp;main(<font color="#cdff8b"><b>void</b></font>) {<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;a, b;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;the two sides (legs) of the right triangle, </b></font><font color="#00ffff"><b>*/</b></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;c;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;the hypotenuse. </b></font><font color="#00ffff"><b>*/</b></font><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;num_found = <font color="#ff40ff"><b>0</b></font>;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;keep track of how many pythagorean triples we find. </b></font><font color="#00ffff"><b>*/</b></font><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>for</b></font>&nbsp;(a=<font color="#ff40ff"><b>1</b></font>; a&lt;=<font color="#ff40ff"><b>500</b></font>; a++) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>for</b></font>&nbsp;(b=<font color="#ff40ff"><b>1</b></font>; b&lt;=<font color="#ff40ff"><b>500</b></font>; b++) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>for</b></font>&nbsp;(c=<font color="#ff40ff"><b>1</b></font>; c&lt;=<font color="#ff40ff"><b>500</b></font>; c++) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;&nbsp;&nbsp;&nbsp;if a^2&nbsp;&nbsp;+&nbsp;&nbsp;&nbsp;&nbsp; b^2&nbsp;&nbsp;==&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c^2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></font><font color="#00ffff"><b>*/</b></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>if</b></font>&nbsp;( pow(a,<font color="#ff40ff"><b>2</b></font>) + pow(b,<font color="#ff40ff"><b>2</b></font>) == pow(c,<font color="#ff40ff"><b>2</b></font>) ) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;&nbsp;&nbsp;&nbsp;then we have a pythagorean triple: </b></font><font color="#00ffff"><b>*/</b></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num_found++;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ff40ff"><b>&quot;result </b></font><font color="#ff6060"><b>%3d</b></font><font color="#ff40ff"><b>&nbsp;: a= </b></font><font color="#ff6060"><b>%3d</b></font><font color="#ff40ff"><b>, b= </b></font><font color="#ff6060"><b>%3d</b></font><font color="#ff40ff"><b>, c= </b></font><font color="#ff6060"><b>%3d</b></font><font color="#ff6060"><b>\n</b></font><font color="#ff40ff"><b>&quot;</b></font>, num_found, a, b, c);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>return</b></font>&nbsp;<font color="#ff40ff"><b>0</b></font>; <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;exit successfully </b></font><font color="#00ffff"><b>*/</b></font><br>
+}<br>
+</font></body>
+</html>

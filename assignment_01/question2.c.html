@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>~/cs350/assignment_01/question2.c.html</title>
+<meta name="Generator" content="Vim/7.2">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#000000" text="#ffffff"><font face="monospace">
+<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;</b></font><br>
+<font color="#00ffff"><b>&nbsp;* Program to find Perfect Numbers</b></font><br>
+<font color="#00ffff"><b>&nbsp;* ===================================</b></font><br>
+<font color="#00ffff"><b>&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;By:&nbsp;&nbsp;&nbsp;&nbsp; Paul A. Prince</b></font><br>
+<font color="#00ffff"><b>&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For:&nbsp;&nbsp;&nbsp;&nbsp;WVU CS 350 - Donald Adjeroh</b></font><br>
+<font color="#00ffff"><b>&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date:&nbsp;&nbsp; 2010-02-10 (created)</b></font><br>
+<font color="#00ffff"><b>&nbsp;*</b></font><br>
+<font color="#00ffff"><b>&nbsp;* Assignment 1, Question 2:</b></font><br>
+<font color="#00ffff"><b>&nbsp;* -------------------------</b></font><br>
+<font color="#00ffff"><b>&nbsp;*</b></font><br>
+<font color="#00ffff"><b>&nbsp;* Perfect number is: integer whose factors including 1 (but not the integer itself) sum to the integer.</b></font><br>
+<font color="#00ffff"><b>&nbsp;* Examples:&nbsp;&nbsp;(<a href="http://en.wikipedia.org/wiki/List_of_perfect_numbers)">http://en.wikipedia.org/wiki/List_of_perfect_numbers)</a></b></font><br>
+<font color="#00ffff"><b>&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp; 6 = 1 + 2 + 3</b></font><br>
+<font color="#00ffff"><b>&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;28 = 1 + 2 + 4 + 7 + 14</b></font><br>
+<font color="#00ffff"><b>&nbsp;*</b></font><br>
+<font color="#00ffff"><b>&nbsp;* Finds all such numbers between 1 and 10000.</b></font><br>
+<font color="#00ffff"><b>&nbsp;</b></font><font color="#00ffff"><b>*/</b></font><br>
+<br>
+<font color="#c000c0">#include </font><font color="#ff40ff"><b>&lt;stdio.h&gt;</b></font><br>
+<br>
+<br>
+<font color="#cdff8b"><b>int</b></font>&nbsp;main(<font color="#cdff8b"><b>void</b></font>) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;n;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>for</b></font>&nbsp;(n=<font color="#ff40ff"><b>1</b></font>; n&lt;=<font color="#ff40ff"><b>10000</b></font>; n++) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;sum = <font color="#ff40ff"><b>0</b></font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;i;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>for</b></font>&nbsp;( i=<font color="#ff40ff"><b>1</b></font>; i&lt;n; i++ ) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>if</b></font>&nbsp;(n%i==<font color="#ff40ff"><b>0</b></font>) sum+=i;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>if</b></font>&nbsp;(n==sum) printf(<font color="#ff40ff"><b>&quot;result: </b></font><font color="#ff6060"><b>%4d</b></font><font color="#ff6060"><b>\n</b></font><font color="#ff40ff"><b>&quot;</b></font>, n);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ff40ff"><b>&quot;Stopping after </b></font><font color="#ff6060"><b>%d</b></font><font color="#ff40ff"><b>&nbsp;attempts.</b></font><font color="#ff6060"><b>\n</b></font><font color="#ff40ff"><b>&quot;</b></font>, (n - <font color="#ff40ff"><b>1</b></font>));<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>return</b></font>&nbsp;<font color="#ff40ff"><b>0</b></font>; <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;exit successfully </b></font><font color="#00ffff"><b>*/</b></font><br>
+}<br>
+</font></body>
+</html>

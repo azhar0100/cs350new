@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>~/cs350/assignment_01/question3.c.html</title>
+<meta name="Generator" content="Vim/7.2">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#000000" text="#ffffff"><font face="monospace">
+<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;</b></font><br>
+<font color="#00ffff"><b>&nbsp;* Program to find Greatest Common Divisor</b></font><br>
+<font color="#00ffff"><b>&nbsp;* ==============================================</b></font><br>
+<font color="#00ffff"><b>&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;By:&nbsp;&nbsp;&nbsp;&nbsp; Paul A. Prince</b></font><br>
+<font color="#00ffff"><b>&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For:&nbsp;&nbsp;&nbsp;&nbsp;WVU CS 350 - Donald Adjeroh</b></font><br>
+<font color="#00ffff"><b>&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date:&nbsp;&nbsp; 2010-02-10 (created)</b></font><br>
+<font color="#00ffff"><b>&nbsp;*</b></font><br>
+<font color="#00ffff"><b>&nbsp;* Assignment 1, Question :3</b></font><br>
+<font color="#00ffff"><b>&nbsp;* -------------------------</b></font><br>
+<font color="#00ffff"><b>&nbsp;*</b></font><br>
+<font color="#00ffff"><b>&nbsp;</b></font><font color="#00ffff"><b>*/</b></font><br>
+<br>
+<font color="#c000c0">#include </font><font color="#ff40ff"><b>&lt;stdio.h&gt;</b></font><br>
+<font color="#c000c0">#include </font><font color="#ff40ff"><b>&lt;stdlib.h&gt;</b></font><br>
+<br>
+<br>
+<font color="#c000c0">#include </font><font color="#ff40ff"><b>&quot;prompt.c&quot;</b></font><br>
+<br>
+<br>
+<font color="#cdff8b"><b>int</b></font>&nbsp;gcd_recursive(<font color="#cdff8b"><b>int</b></font>&nbsp;x, <font color="#cdff8b"><b>int</b></font>&nbsp;y);<br>
+<font color="#cdff8b"><b>int</b></font>&nbsp;gcd_iterative(<font color="#cdff8b"><b>int</b></font>&nbsp;x, <font color="#cdff8b"><b>int</b></font>&nbsp;y);<br>
+<br>
+<br>
+<font color="#cdff8b"><b>int</b></font>&nbsp;main(<font color="#cdff8b"><b>void</b></font>) {<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;x;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;y;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ff40ff"><b>&quot;</b></font><font color="#ff6060"><b>\n</b></font><font color="#ff40ff"><b>Find Greatest Common Divisor...</b></font><font color="#ff6060"><b>\n</b></font><font color="#ff40ff"><b>&quot;</b></font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(&nbsp;&nbsp;<font color="#ff40ff"><b>&quot;===============================</b></font><font color="#ff6060"><b>\n\n</b></font><font color="#ff40ff"><b>&quot;</b></font>);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x = int_prompt(<font color="#ff40ff"><b>&quot;Enter 1st value (X)&quot;</b></font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y = int_prompt(<font color="#ff40ff"><b>&quot;Enter 2nd value (Y)&quot;</b></font>);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ff40ff"><b>&quot;</b></font><font color="#ff6060"><b>\n</b></font><font color="#ff40ff"><b>&nbsp;&nbsp;Values of ( X , Y ) are ( </b></font><font color="#ff6060"><b>%d</b></font><font color="#ff40ff"><b>&nbsp;, </b></font><font color="#ff6060"><b>%d</b></font><font color="#ff40ff"><b>&nbsp;).</b></font><font color="#ff6060"><b>\n\n</b></font><font color="#ff40ff"><b>&quot;</b></font>, x, y);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ff40ff"><b>&quot;&nbsp;&nbsp;&nbsp;&nbsp; ** Recursive algorithm result: </b></font><font color="#ff6060"><b>%8d</b></font><font color="#ff40ff"><b>&nbsp;**</b></font><font color="#ff6060"><b>\n</b></font><font color="#ff40ff"><b>&quot;</b></font>, gcd_recursive(x, y));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ff40ff"><b>&quot;&nbsp;&nbsp;&nbsp;&nbsp; ** Iterative algorithm result: </b></font><font color="#ff6060"><b>%8d</b></font><font color="#ff40ff"><b>&nbsp;**</b></font><font color="#ff6060"><b>\n</b></font><font color="#ff40ff"><b>&quot;</b></font>, gcd_iterative(x, y));<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ff40ff"><b>&quot;</b></font><font color="#ff6060"><b>\n</b></font><font color="#ff40ff"><b>&quot;</b></font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>return</b></font>&nbsp;<font color="#ff40ff"><b>0</b></font>; <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;exit successfully </b></font><font color="#00ffff"><b>*/</b></font><br>
+}<br>
+<br>
+<br>
+<font color="#cdff8b"><b>int</b></font>&nbsp;gcd_iterative(<font color="#cdff8b"><b>int</b></font>&nbsp;x, <font color="#cdff8b"><b>int</b></font>&nbsp;y) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;Euclidean algorithm </b></font><font color="#00ffff"><b>*/</b></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;<a href="http://en.literateprograms.org/Euclidean_algorithm_(C)">http://en.literateprograms.org/Euclidean_algorithm_(C)</a> </b></font><font color="#00ffff"><b>*/</b></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>if</b></font>&nbsp;(y &gt; x) { <font color="#cdff8b"><b>int</b></font>&nbsp;t = x; x = y; y = t; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>while</b></font>&nbsp;(y != <font color="#ff40ff"><b>0</b></font>) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;m = x % y;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x = y;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y = m;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>return</b></font>&nbsp;x;<br>
+}<br>
+<br>
+<br>
+<font color="#cdff8b"><b>int</b></font>&nbsp;gcd_recursive(<font color="#cdff8b"><b>int</b></font>&nbsp;x, <font color="#cdff8b"><b>int</b></font>&nbsp;y) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>if</b></font>&nbsp;( y == <font color="#ff40ff"><b>0</b></font>&nbsp;) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>return</b></font>&nbsp;x;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>return</b></font>&nbsp;gcd_recursive( y, x % y );<br>
+<br>
+}<br>
+<br>
+</font></body>
+</html>
