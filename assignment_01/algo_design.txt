@@ -1,0 +1,69 @@
+Assignment 1 - Algorithm Design Document
+========================================
+	By: 	Paul A. Prince
+	For:	WVU CS 350 - Donald Adjeroh
+	Date:	2010-02-10 (created)
+
+
+Question 1:
+-------------------------
+
+For this question, a simple brute-force approach was used.
+
+Three nested for-loops try every combination of 3 integers (a, b, and c)
+ranging from 1 to 500 (inclusive).
+
+For each combination (125 000 000 combinations total), the program computes
+(a^2+b^2) and (c^2), and checks to see if these are equivalent.
+
+If they are, the combination is printed as a positive result.
+
+
+Question 2:
+-------------------------
+
+For each integer n between 1 and 10 000 (inclusive):
+
+The program executes a brute-force loop over 1..n, checking each value to see
+if it is a factor of n.
+
+If it is a factor of n, the value is added to an accumulator (sum).
+
+After this inner loop has finished, the accumulator is compared to n, and if
+these values are equal, then the value of n is printed as a positive result.
+
+
+Question 3:
+-------------------------
+
+For the gcd_recursive() function, the recursive definition is taken *directly*
+from the assignment, with no further design/analysis.
+
+For the gcd_iterative() function, the Euclidean algorithm is used.  This method
+relies on the fact that gcd(x, y) is equivalent to gcd(y, x mod y).
+
+By repeatedly performing this transformation until the mod operator returns 0,
+the GCF is found.
+
+Note that the algorithm requires that y > x at the start; if this is not the
+case, the values must be swapped.
+
+
+Question 4:
+-------------------------
+
+For the Knight's Tour problem, I decided to represent the chessboard and
+the accessibility matrix each as simple 2-dimensional arrays of integers.
+
+To calculate the accessibility matrix, the program simply iterates over each
+of the 64 squares of the chessboard, determining for each square how many
+valid knight-moves are possible from that square.  Already-visited (occupied)
+squares and out-of-bounds moved are accounted for.
+
+The same build_accessibility() function is used after each modification to the
+chessboard to re-calculate the accessiblity matrix.
+
+For starting position, the program queries the user.  Most starting positions
+will lead to finding a successful tour.
+
+No attempt was made for the bonus brute-force solution.
