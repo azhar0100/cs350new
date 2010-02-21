@@ -21,7 +21,7 @@ int int_prompt(char* prompt_string) {
 
 	while(1) {
 		printf("        ");
-		printf(prompt_string);
+		printf("%s", prompt_string);
 		printf(" : ");
 
 		fflush(stdout);
