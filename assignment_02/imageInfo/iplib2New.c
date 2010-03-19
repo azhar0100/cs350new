@@ -59,7 +59,7 @@ image_ptr read_pnm(char *filename, int *rows, int *cols, int *type)
 
     firstchar = getc(fp);
     secchar = getc(fp);
-    printf("second char %d \n", secchar); 
+    /* printf("second char %d \n", secchar); */
     
     if(firstchar != 'P')
 	{
