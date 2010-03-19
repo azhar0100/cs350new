@@ -1,0 +1,2 @@
+* I typically code in a 132-character-wide terminal.  I try to keep my programs' output under 80-columns-wide, however
+  when viewing my source code and plaintext documentation, you will want to use a wider-than-standard terminal window.
