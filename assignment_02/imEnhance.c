@@ -110,9 +110,13 @@ int main(int argc, char **argv) {
 
 
 	/* Check arguments. */
-	if (argc != 7) {
+	if (argc != 8) {
 		fprintf(stderr, "Usage...\n\n");
 		exit(252);
+	}
+	int window_size = atoi(argv[7]);
+	if (window_size < 3) {
+		fprintf(stderr, "Window size must be integer > 3.\n");
 	}
 
 
@@ -159,7 +163,7 @@ int main(int argc, char **argv) {
 	int i, j;
 	for (i=0; i<rows; i++){
 		for (j=0; j<cols; j++) {
-			window_t window = select_square_window(3, i, j, rows, cols);
+			window_t window = select_square_window(window_size, i, j, rows, cols);
 
 			windowcalc_mean_and_variance(Image, cols, window, &window_mean, &window_variance);
 			windowcalc_median(Image, cols, window, &window_median);
