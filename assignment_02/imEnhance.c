@@ -38,7 +38,7 @@ window_t select_square_window(int size, int row, int col, int max_rows, int max_
 
 
 
-void windowcalc_median(image_ptr image, window_t window, double* result_median) {
+void windowcalc_median(image_ptr image, int image_width, window_t window, double* result_median) {
 	int rows = window.lower_right_row - window.upper_left_row + 1;
 	int cols = window.lower_right_col - window.upper_left_col + 1;
 
@@ -54,7 +54,7 @@ void windowcalc_median(image_ptr image, window_t window, double* result_median) 
 	int n = 0;
 	for ( i=window.upper_left_row; i<=window.lower_right_row; i++ ) {
 		for ( j=window.upper_left_col; j<=window.lower_right_col; j++ ) {
-			image_sorted[n] = image[i*cols+j];
+			image_sorted[n] = image[i*image_width+j];
 			n++;
 		}
 	}
@@ -76,7 +76,7 @@ void windowcalc_median(image_ptr image, window_t window, double* result_median) 
 
 
 
-void windowcalc_mean_and_variance(image_ptr image, window_t window, double* result_mean, double* result_variance) {
+void windowcalc_mean_and_variance(image_ptr image, int image_width, window_t window, double* result_mean, double* result_variance) {
 	int rows = window.lower_right_row - window.upper_left_row + 1;
 	int cols = window.lower_right_col - window.upper_left_col + 1;
 
@@ -90,7 +90,7 @@ void windowcalc_mean_and_variance(image_ptr image, window_t window, double* resu
 	for ( i=window.upper_left_row; i<=window.lower_right_row; i++ ) {
 		for ( j=window.upper_left_col; j<=window.lower_right_col; j++ ) {
 			n++;
-			unsigned int pixel_value = image[i*cols + j];
+			unsigned int pixel_value = image[i*image_width + j];
 			delta = pixel_value - mean;
 			mean = mean + delta / n;
 			M2 = M2 + delta * (pixel_value - mean);
@@ -131,8 +131,8 @@ int main(int argc, char **argv) {
 	window_t entire_image = { 0, 0, rows-1, cols-1 };
 
 	double mean, variance, median, stddev;
-	windowcalc_mean_and_variance(Image, entire_image, &mean, &variance);
-	windowcalc_median(Image, entire_image, &median);
+	windowcalc_mean_and_variance(Image, cols, entire_image, &mean, &variance);
+	windowcalc_median(Image, cols, entire_image, &median);
 	stddev = sqrt(variance);
 
 	printf("Original image statistics\n");
@@ -161,8 +161,8 @@ int main(int argc, char **argv) {
 		for (j=0; j<cols; j++) {
 			window_t window = select_square_window(3, i, j, rows, cols);
 
-			windowcalc_mean_and_variance(Image, window, &window_mean, &window_variance);
-			windowcalc_median(Image, window, &window_median);
+			windowcalc_mean_and_variance(Image, cols, window, &window_mean, &window_variance);
+			windowcalc_median(Image, cols, window, &window_median);
 
 			Mean_Image[i*cols+j] = window_mean;
 			Variance_Image[i*cols+j] = window_variance;
