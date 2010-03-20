@@ -89,15 +89,14 @@ void windowcalc_mean_and_variance(image_ptr image, window_t window, double* resu
 	int i, j;
 	for ( i=window.upper_left_row; i<=window.lower_right_row; i++ ) {
 		for ( j=window.upper_left_col; j<=window.lower_right_col; j++ ) {
-			unsigned int pixel_value = image[i*cols + j];
 			n++;
+			unsigned int pixel_value = image[i*cols + j];
 			delta = pixel_value - mean;
 			mean = mean + delta / n;
 			M2 = M2 + delta * (pixel_value - mean);
 		}
 	}
 	double variance = M2/(n - 1);
-	double variance_n = M2/(n);
 
 
 	/* Return results via output arguments. */
@@ -111,7 +110,7 @@ int main(int argc, char **argv) {
 
 
 	/* Check arguments. */
-	if (argc != 2) {
+	if (argc != 7) {
 		fprintf(stderr, "Usage...\n\n");
 		exit(252);
 	}
@@ -160,7 +159,7 @@ int main(int argc, char **argv) {
 	int i, j;
 	for (i=0; i<rows; i++){
 		for (j=0; j<cols; j++) {
-			window_t window = select_square_window(9, i, j, rows, cols);
+			window_t window = select_square_window(3, i, j, rows, cols);
 
 			windowcalc_mean_and_variance(Image, window, &window_mean, &window_variance);
 			windowcalc_median(Image, window, &window_median);
@@ -173,6 +172,11 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	write_pnm( Mean_Image,     argv[2], rows, cols, type);
+	write_pnm( Variance_Image, argv[3], rows, cols, type);
+	write_pnm( Stddev_Image,   argv[4], rows, cols, type);
+	write_pnm( Median_Image,   argv[5], rows, cols, type);
+	write_pnm( Enhanced_Image, argv[6], rows, cols, type);
 
 	/* Exit with much success! */
 	exit(0);
