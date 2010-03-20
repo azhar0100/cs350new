@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
 	fprintf(stderr, "Type %d image, %dx%d.\n", type, rows, cols);
 
 
-	/* This special window represents the entire image. Use with care.*/
+	/* This special window represents the entire image. Use with care. */
 	window_t entire_image = { 0, 0, rows-1, cols-1 };
 
 	double mean, variance, median, stddev;
@@ -164,10 +164,16 @@ int main(int argc, char **argv) {
 			windowcalc_mean_and_variance(Image, cols, window, &window_mean, &window_variance);
 			windowcalc_median(Image, cols, window, &window_median);
 
-			Mean_Image[i*cols+j] = window_mean;
-			Variance_Image[i*cols+j] = window_variance;
 			Stddev_Image[i*cols+j] = sqrt(window_variance);
+			Mean_Image[i*cols+j] = window_mean;
 			Median_Image[i*cols+j] = window_median;
+
+			/* Rescale variance 0-5100::0-255 */
+			if (window_variance > 5100) window_variance=5100;
+			window_variance = window_variance/20; /* 20 * 255 = 5100 */ 
+
+			Variance_Image[i*cols+j] = window_variance;
+
 			Enhanced_Image[i*cols+j] = Image[i*cols+j];
 		}
 	}
