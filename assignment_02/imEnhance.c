@@ -110,13 +110,13 @@ int main(int argc, char **argv) {
 
 
 	/* Check arguments. */
-	if (argc != 8) {
+	if (argc != 7) {
 		fprintf(stderr, "Usage...\n\n");
 		exit(252);
 	}
-	int window_size = atoi(argv[7]);
+	int window_size = atoi(argv[6]);
 	if (window_size < 3) {
-		fprintf(stderr, "Window size must be integer > 3.\n");
+		fprintf(stderr, "Window size must be integer >= 3.\n");
 	}
 
 
@@ -128,7 +128,8 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Failed to open \"%s\" as input image.\n", argv[1]);
 		exit(254);
 	}
-	fprintf(stderr, "Type %d image, %dx%d.\n", type, rows, cols);
+	fprintf(stderr, "Processing a Type %d image, %dx%d pixels. Window size is %dx%d pixels.\n",
+		type, rows, cols, window_size, window_size);
 
 
 	/* This special window represents the entire image. Use with care. */
@@ -147,12 +148,12 @@ int main(int argc, char **argv) {
 
 
 	/* Allocate additional memory to hold all of our output (and intermediary?) images. */
-	image_ptr Mean_Image = (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
-	image_ptr Variance_Image = (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
-	image_ptr Stddev_Image = (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
-	image_ptr Median_Image = (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
-	image_ptr Enhanced_Image = (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
-	if (Mean_Image == NULL || Variance_Image == NULL || Stddev_Image == NULL || Median_Image == NULL || Enhanced_Image == NULL) {
+	image_ptr Mean_Image		= (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
+	image_ptr Variance_Image	= (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
+	image_ptr Median_Image		= (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
+	image_ptr Enhanced_Image	= (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
+	if ( !(Mean_Image && Variance_Image && Median_Image && Enhanced_Image))
+	{
 		fprintf(stderr, "Could not allocate memory.\n");
 		exit(251);
 	}
@@ -163,32 +164,48 @@ int main(int argc, char **argv) {
 	int i, j;
 	for (i=0; i<rows; i++){
 		for (j=0; j<cols; j++) {
+
 			window_t window = select_square_window(window_size, i, j, rows, cols);
 
 			windowcalc_mean_and_variance(Image, cols, window, &window_mean, &window_variance);
 			windowcalc_median(Image, cols, window, &window_median);
 
-			Stddev_Image[i*cols+j] = sqrt(window_variance);
+
 			Mean_Image[i*cols+j] = window_mean;
 			Median_Image[i*cols+j] = window_median;
+
+
+			/* Compute ENHANCED Image */
+			double A	= 2.00;
+			double C1	= 0.40;
+			double C2	= 0.02;
+			double C3	= 0.40;
+			if(
+				(window_mean <= mean * C1) &&
+				(stddev * C2 <= sqrt(window_variance)) &&
+				(stddev * C3 <= sqrt(window_variance))
+			){
+				Enhanced_Image[i*cols+j] = A*Image[i*cols+j];
+				printf(".");
+			} else {
+				Enhanced_Image[i*cols+j] = Image[i*cols+j];
+			}
+
 
 			/* Rescale variance 0-5100::0-255 */
 			if (window_variance > 5100) window_variance=5100;
 			window_variance = window_variance/20; /* 20 * 255 = 5100 */ 
-
 			Variance_Image[i*cols+j] = window_variance;
-
-			Enhanced_Image[i*cols+j] = Image[i*cols+j];
 		}
 	}
 
 	write_pnm( Mean_Image,     argv[2], rows, cols, type);
 	write_pnm( Variance_Image, argv[3], rows, cols, type);
-	write_pnm( Stddev_Image,   argv[4], rows, cols, type);
-	write_pnm( Median_Image,   argv[5], rows, cols, type);
-	write_pnm( Enhanced_Image, argv[6], rows, cols, type);
+	write_pnm( Median_Image,   argv[4], rows, cols, type);
+	write_pnm( Enhanced_Image, argv[5], rows, cols, type);
 
 	/* Exit with much success! */
+	printf("\n");
 	exit(0);
 }
 
