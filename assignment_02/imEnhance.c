@@ -117,7 +117,11 @@ int calc_enhanced(unsigned char input_pixel, double overall_mean, double overall
 	double C3	= 0.40;
 
 	/* The actual transformation:  Selective brightening. */
-	if((window_mean <= overall_mean * C1) && (overall_stddev * C2 <= window_stddev)){
+	if(
+		(window_mean <= overall_mean * C1) &&
+		(overall_stddev * C2 <= window_stddev) &&
+		(overall_stddev * C3 <= window_stddev)
+	){
 		return A * input_pixel;
 	} else {
 		return input_pixel;

@@ -6,4 +6,5 @@ clean:
 	rm -rf imEnhance imEnhance.gprof.o gmon.out test_output
 
 test:
+	rm -rf test_output
 	./run_tests
