@@ -35,6 +35,9 @@
 INPUT_DIR="./test_input"
 OUTPUT_DIR="./test_output"
 
+imEnhance="./imEnhance.gprof.o"
+#imEnhance="./imEnhance"
+
 mkdir $OUTPUT_DIR
 if [ $? -ne 0 ]; then
 	exit
@@ -46,7 +49,7 @@ for n in {3,5,7,8,9,10,15,20}; do
 
 	for i in $INPUT_DIR/*.pgm; do
 		i=`basename $i`
-		./imEnhance					\
+		$imEnhance					\
 			$INPUT_DIR/$i				\
 			$OUTPUT_DIR/${n}x${n}/$i.mean.pgm	\
 			$OUTPUT_DIR/${n}x${n}/$i.var.pgm	\

@@ -6,13 +6,13 @@
 #include "imageInfo/iplib2New.c"
 
 
-
+/* For use with the stdlib's Qsort. */
 int int_compare(const void *p1, const void *p2) {
 	return ( *(int*)p1 - *(int*)p2 );
 }
 
 
-
+/* Represents a rectangular (not necessarily sqaure) sub-region of a larger (or equally-sized) rectangular region. */
 typedef struct {
 	int upper_left_row;
 	int upper_left_col;
@@ -21,8 +21,10 @@ typedef struct {
 } window_t;
 
 
-
-window_t select_square_window(int size, int row, int col, int max_rows, int max_cols) {
+/* Select a square window with sides of length max_cols centered at row,col from the larger region of size max_rows x max_cols . */
+/* Note, if the square window would exceed the bounds of the larger region, the window will be cropped to fit inside it instead. */
+/* This means, that this function regularly returns non-square rectangular windows. */
+window_t select_window(int size, int row, int col, int max_rows, int max_cols) {
 	/* Even arguments for size do not produce even-length window sides; size = 6 is equivalent to size = 7. */
 	window_t window;
 	window.upper_left_row  = row - size/2;
@@ -37,7 +39,7 @@ window_t select_square_window(int size, int row, int col, int max_rows, int max_
 }
 
 
-
+/* Calculate the median of a rectangular region. */
 void windowcalc_median(image_ptr image, int image_width, window_t window, double* result_median) {
 	int rows = window.lower_right_row - window.upper_left_row + 1;
 	int cols = window.lower_right_col - window.upper_left_col + 1;
@@ -75,7 +77,7 @@ void windowcalc_median(image_ptr image, int image_width, window_t window, double
 }
 
 
-
+/* Calculate the mean and variance of a rectangular region. */
 void windowcalc_mean_and_variance(image_ptr image, int image_width, window_t window, double* result_mean, double* result_variance) {
 	int rows = window.lower_right_row - window.upper_left_row + 1;
 	int cols = window.lower_right_col - window.upper_left_col + 1;
@@ -105,6 +107,23 @@ void windowcalc_mean_and_variance(image_ptr image, int image_width, window_t win
 }
 
 
+/* Calculate the enhanced value for a pixel given the other required terms. */
+int calc_enhanced(unsigned char input_pixel, double overall_mean, double overall_stddev, double window_mean, double window_stddev ){
+
+	/* Constants for the assignment-provided transformation. */
+	double A	= 2.00;
+	double C1	= 0.40;
+	double C2	= 0.02;
+	double C3	= 0.40;
+
+	/* The actual transformation:  Selective brightening. */
+	if((window_mean <= overall_mean * C1) && (overall_stddev * C2 <= window_stddev)){
+		return A * input_pixel;
+	} else {
+		return input_pixel;
+	}
+}
+
 
 int main(int argc, char **argv) {
 
@@ -132,12 +151,12 @@ int main(int argc, char **argv) {
 		type, rows, cols, window_size, window_size);
 
 
-	/* This special window represents the entire image. Use with care. */
-	window_t entire_image = { 0, 0, rows-1, cols-1 };
-
+	/* Calculate overall statistics for the original image. */
+	/* Note: This special-valued window represents the entire image. Use with care. */
+	window_t ENTIRE_IMAGE = { 0, 0, rows-1, cols-1 };
 	double mean, variance, median, stddev;
-	windowcalc_mean_and_variance(Image, cols, entire_image, &mean, &variance);
-	windowcalc_median(Image, cols, entire_image, &median);
+	windowcalc_mean_and_variance(Image, cols, ENTIRE_IMAGE, &mean, &variance);
+	windowcalc_median(Image, cols, ENTIRE_IMAGE, &median);
 	stddev = sqrt(variance);
 
 	printf("Original image statistics\n");
@@ -147,7 +166,7 @@ int main(int argc, char **argv) {
 	printf("    Median:       %f\n", median);
 
 
-	/* Allocate additional memory to hold all of our output (and intermediary?) images. */
+	/* Allocate additional memory to hold our output images. */
 	image_ptr Mean_Image		= (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
 	image_ptr Variance_Image	= (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
 	image_ptr Median_Image		= (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
@@ -160,41 +179,34 @@ int main(int argc, char **argv) {
 
 
 	/* Iterate over the input image, populating the others along the way. */
-	double window_mean, window_variance, window_median;
+	double window_mean, window_variance, window_median, window_stddev;
 	int i, j;
 	for (i=0; i<rows; i++){
 		for (j=0; j<cols; j++) {
 
-			window_t window = select_square_window(window_size, i, j, rows, cols);
+			/* Choose the subregion of interest (window) around this pixel. */
+			window_t window = select_window(window_size, i, j, rows, cols);
 
-			windowcalc_mean_and_variance(Image, cols, window, &window_mean, &window_variance);
+			/* Calculate the median of just the window. */
 			windowcalc_median(Image, cols, window, &window_median);
 
+			/* Calculate the mean and variance of just the window. */
+			windowcalc_mean_and_variance(Image, cols, window, &window_mean, &window_variance);
 
-			Mean_Image[i*cols+j] = window_mean;
-			Median_Image[i*cols+j] = window_median;
+			/* For convenience, also the standard deviation of just the window. */
+			window_stddev = sqrt(window_variance);
 
+			/* Calculate the enhanced value of this pixel. */
+			int window_enhanced = calc_enhanced( Image[i*cols+j], mean, stddev, window_mean, window_stddev );
 
-			/* Compute ENHANCED Image */
-			double A	= 2.00;
-			double C1	= 0.40;
-			double C2	= 0.02;
-			double C3	= 0.40;
-			if(
-				(window_mean <= mean * C1) &&
-				(stddev * C2 <= sqrt(window_variance)) &&
-				(stddev * C3 <= sqrt(window_variance))
-			){
-				Enhanced_Image[i*cols+j] = A*Image[i*cols+j];
-				printf(".");
-			} else {
-				Enhanced_Image[i*cols+j] = Image[i*cols+j];
-			}
-
-
-			/* Rescale variance 0-5100::0-255 */
+			/* Rescale variance 0-5100::0-255, since it doesn't fit well into our 1-byte-per-pixel format. */
 			if (window_variance > 5100) window_variance=5100;
 			window_variance = window_variance/20; /* 20 * 255 = 5100 */ 
+
+			/* Assignments to the output images. */
+			Mean_Image[i*cols+j]     = window_mean;
+			Median_Image[i*cols+j]   = window_median;
+			Enhanced_Image[i*cols+j] = window_enhanced;
 			Variance_Image[i*cols+j] = window_variance;
 		}
 	}
@@ -205,7 +217,6 @@ int main(int argc, char **argv) {
 	write_pnm( Enhanced_Image, argv[5], rows, cols, type);
 
 	/* Exit with much success! */
-	printf("\n");
 	exit(0);
 }
 
