@@ -145,7 +145,7 @@ int getnum(FILE *fp)
 	}
     while((c==' ') || (c=='\t') || (c=='\n') || (c=='\r'));
 
-    if((c<'0') || (c>'9'))
+    if((c<'0') || (c>'9')) {
 	if(c == '#')                   /* chew off comments */
 	    {
 	    while(c == '#')
@@ -160,6 +160,7 @@ int getnum(FILE *fp)
 	    printf("Garbage in ASCII fields\n");
 	    exit(1);
 	    }
+    }
     i=0;
     do
 	{
