@@ -3,7 +3,7 @@
 #include <math.h>
 #include <string.h>
 
-#include "imageInfo/iplib2New.c"
+#include "iplib2New-modified.c"
 
 
 /* For use with the stdlib's Qsort. */
