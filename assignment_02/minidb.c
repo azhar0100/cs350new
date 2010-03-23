@@ -29,8 +29,8 @@ void add_update_db();
 void print_db();
 void delete_from_db();
 void search_db();
-void search_results_by_id(int id);
-void search_results_by_name(const char *starts_with);
+void print_search_results_by_id(int id);
+void print_search_results_by_name(const char *starts_with);
 
 /* Prototypes: other functions. */
 void change_active(FILE *new_active, const char *new_path);
@@ -60,7 +60,7 @@ int main(void){
 
 		printf("\n");
 		printf("    I - Initialize a database\n");
-		printf("    N - Input new records\n");
+		printf("    N - Add/Update records\n");
 		printf("    S - Search for a record\n");
 		printf("    D - Delete a record\n");
 		printf("    P - List all records\n");
@@ -88,9 +88,11 @@ int main(void){
 			case 'E': case 'e':
 			case 'X': case 'x':
 				printf("Bye!\n");
-				exit(0);
+				exit(0); /* with much success! */
 
 			case 'N': case 'n':
+			case 'A': case 'a':
+			case 'U': case 'u':
 			case 'P': case 'p':
 			case 'C': case 'c':
 			case 'D': case 'd':
@@ -115,6 +117,8 @@ int main(void){
 			/* These menu options DO require an active database. */
 
 			case 'N': case 'n':
+			case 'A': case 'a':
+			case 'U': case 'u':
 				add_update_db();
 				continue;
 
@@ -139,15 +143,12 @@ int main(void){
 				continue;
 		}
 	}
-
-	exit(0); /* with much success! */
 }
 
 
 /*******************/
 /* OTHER FUNCTIONS */
 /*******************/
-
 
 void print_db(){
 	rewind(active_database);
@@ -170,6 +171,77 @@ void print_db(){
 		}
 	}
 	printf("+------+--------+--------+---------------\n");
+	printf("\n");
+}
+
+
+void print_search_results_by_id(int id) {
+	tool_t tool;
+	int total_results = 0;
+
+	printf("\n");
+	printf("  SEARCH RESULTS:\n");
+	printf("  =======================:\n");
+	printf("  Query was:\n");
+	printf("    ID = %d\n", id);
+	printf("\n");
+	printf("+------+--------+--------+---------------\n");
+	printf("|  ID  |  Qty   |  Cost  | Name   ...\n");
+	printf("+======+========+========+===============\n");
+
+	if(fseek(active_database, id*sizeof(tool_t), SEEK_SET) != 0){
+		printf("FATAL: Error writing tool to active database.\n");
+		exit(29);
+	}
+
+	if(fread(&tool, sizeof(tool_t), 1, active_database) != 1){
+		printf("FATAL: Error reading from database.\n");
+		exit(28);
+	}
+
+	if(tool.id == id){
+		printf("|%6d|%8d|%8d|%s\n", tool.id, tool.qty, tool.cost, tool.name);
+		total_results++;
+	}
+
+	printf("+------+--------+--------+---------------\n");
+	printf("   result count = %d\n", total_results);
+	printf("\n");
+}
+
+
+void print_search_results_by_name(const char *starts_with) {
+	tool_t tool;
+	int i;
+	int total_results = 0;
+
+	printf("\n");
+	printf("  SEARCH RESULTS:\n");
+	printf("  =======================:\n");
+	printf("  Query was:\n");
+	printf("    name = \"%s\"\n", starts_with);
+	printf("\n");
+	printf("+------+--------+--------+---------------\n");
+	printf("|  ID  |  Qty   |  Cost  | Name   ...\n");
+	printf("+======+========+========+===============\n");
+
+	rewind(active_database);
+	for(i=0; i<MAX_TOOLS; i++){
+		if(fread(&tool, sizeof(tool_t), 1, active_database) != 1){
+			printf("FATAL: Error reading from database.\n");
+			exit(89);
+		}
+
+		if(tool.id >= 0 && tool.id < MAX_TOOLS){
+			if(strncmp(tool.name, starts_with, strlen(starts_with)) == 0){
+				printf("|%6d|%8d|%8d|%s\n", tool.id, tool.qty, tool.cost, tool.name);
+				total_results++;
+			}
+		}
+	}
+
+	printf("+------+--------+--------+---------------\n");
+	printf("   result count = %d\n", total_results);
 	printf("\n");
 }
 
@@ -233,13 +305,13 @@ void search_db(){
 				if (id<0 || id>MAX_TOOLS-1) {
 					printf(" !! Invalid Tool ID, try again.\n");
 				} else {
-					search_results_by_id(id);
+					print_search_results_by_id(id);
 				}
 				continue;
 
 			case 'N': case 'n':
 				prompt_str("Name starts with?", buf, MAX_LEN_TOOLNAME);
-					search_results_by_name(buf);
+					print_search_results_by_name(buf);
 				continue;
 
 			case 'Q': case 'q':
@@ -249,77 +321,6 @@ void search_db(){
 				continue;
 		}
 	}
-}
-
-
-void search_results_by_id(int id) {
-	tool_t tool;
-	int total_results = 0;
-
-	printf("\n");
-	printf("  SEARCH RESULTS:\n");
-	printf("  =======================:\n");
-	printf("  Query was:\n");
-	printf("    ID = %d\n", id);
-	printf("\n");
-	printf("+------+--------+--------+---------------\n");
-	printf("|  ID  |  Qty   |  Cost  | Name   ...\n");
-	printf("+======+========+========+===============\n");
-
-	if(fseek(active_database, id*sizeof(tool_t), SEEK_SET) != 0){
-		printf("FATAL: Error writing tool to active database.\n");
-		exit(29);
-	}
-
-	if(fread(&tool, sizeof(tool_t), 1, active_database) != 1){
-		printf("FATAL: Error reading from database.\n");
-		exit(28);
-	}
-
-	if(tool.id == id){
-		printf("|%6d|%8d|%8d|%s\n", tool.id, tool.qty, tool.cost, tool.name);
-		total_results++;
-	}
-
-	printf("+------+--------+--------+---------------\n");
-	printf("   result count = %d\n", total_results);
-	printf("\n");
-}
-
-
-void search_results_by_name(const char *starts_with) {
-	tool_t tool;
-	int i;
-	int total_results = 0;
-
-	printf("\n");
-	printf("  SEARCH RESULTS:\n");
-	printf("  =======================:\n");
-	printf("  Query was:\n");
-	printf("    name = \"%s\"\n", starts_with);
-	printf("\n");
-	printf("+------+--------+--------+---------------\n");
-	printf("|  ID  |  Qty   |  Cost  | Name   ...\n");
-	printf("+======+========+========+===============\n");
-
-	rewind(active_database);
-	for(i=0; i<MAX_TOOLS; i++){
-		if(fread(&tool, sizeof(tool_t), 1, active_database) != 1){
-			printf("FATAL: Error reading from database.\n");
-			exit(89);
-		}
-
-		if(tool.id >= 0 && tool.id < MAX_TOOLS){
-			if(strncmp(tool.name, starts_with, strlen(starts_with)) == 0){
-				printf("|%6d|%8d|%8d|%s\n", tool.id, tool.qty, tool.cost, tool.name);
-				total_results++;
-			}
-		}
-	}
-
-	printf("+------+--------+--------+---------------\n");
-	printf("   result count = %d\n", total_results);
-	printf("\n");
 }
 
 
