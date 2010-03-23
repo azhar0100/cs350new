@@ -79,10 +79,6 @@ void windowcalc_median(image_ptr image, int image_width, window_t window, double
 
 /* Calculate the mean and variance of a rectangular region. */
 void windowcalc_mean_and_variance(image_ptr image, int image_width, window_t window, double* result_mean, double* result_variance) {
-	int rows = window.lower_right_row - window.upper_left_row + 1;
-	int cols = window.lower_right_col - window.upper_left_col + 1;
-
-
 	unsigned long int n = 0;	/* Pixel count */
 	double mean  = 0.0;
 	double delta = 0.0;
