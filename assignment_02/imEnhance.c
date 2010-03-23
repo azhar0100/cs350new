@@ -211,12 +211,12 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	/* Write the in-memory output images to their files. */
 	write_pnm( Mean_Image,     argv[2], rows, cols, type);
 	write_pnm( Variance_Image, argv[3], rows, cols, type);
 	write_pnm( Median_Image,   argv[4], rows, cols, type);
 	write_pnm( Enhanced_Image, argv[5], rows, cols, type);
 
-	/* Exit with much success! */
-	exit(0);
+	exit(0); /* with much success! */
 }
 
