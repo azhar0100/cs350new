@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # First, put your input images in ./test_input, for example ./test_input/Duck_on_Pond.pgm , ./test_input/Snowy_Forest.pgm
+#       (name them ending in ".pgm")
 #
 # Then, run this script.  It will:
 #	1) Loop over each of your test images,
@@ -43,7 +44,7 @@ if [ $? -ne 0 ]; then
 	exit
 fi;
 
-for n in 3 5 7 9 15 25; do
+for n in 3 5 7 9 15; do
 
 	mkdir "${OUTPUT_DIR}/${n}x${n}"
 
