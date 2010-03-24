@@ -72,10 +72,10 @@ int main(int argc, char **argv) {
 
 
 	/* Allocate additional memory to hold our output images. */
-	image_ptr Mean_Image		= (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
-	image_ptr Median_Image		= (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
-	image_ptr Enhanced_Image	= (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
-	image_ptr Variance_Image	= (image_ptr) malloc(rows*cols*(sizeof(unsigned char)));
+	image_ptr Mean_Image		= (image_ptr) malloc(rows*cols);
+	image_ptr Median_Image		= (image_ptr) malloc(rows*cols);
+	image_ptr Enhanced_Image	= (image_ptr) malloc(rows*cols);
+	image_ptr Variance_Image	= (image_ptr) malloc(rows*cols);
 	if ( !(Mean_Image && Variance_Image && Median_Image && Enhanced_Image))
 	{
 		fprintf(stderr, "Could not allocate memory.\n");
