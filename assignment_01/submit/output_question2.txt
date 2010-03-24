@@ -1,0 +1,5 @@
+result:    6
+result:   28
+result:  496
+result: 8128
+Stopping after 10000 attempts.
