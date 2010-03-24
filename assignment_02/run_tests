@@ -43,7 +43,7 @@ if [ $? -ne 0 ]; then
 	exit
 fi;
 
-for n in {3,5,7,9,15,25}; do
+for n in 3 5 7 9 15 25; do
 
 	mkdir "${OUTPUT_DIR}/${n}x${n}"
 
