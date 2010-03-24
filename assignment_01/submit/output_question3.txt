@@ -1,0 +1,13 @@
+
+Find Greatest Common Divisor...
+===============================
+
+        Enter 1st value (X) : 42
+        Enter 2nd value (Y) : 56
+
+  Values of ( X , Y ) are ( 42 , 56 ).
+
+     ** Recursive algorithm result:       14 **
+     ** Iterative algorithm result:       14 **
+
+
