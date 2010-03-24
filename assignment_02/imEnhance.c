@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
 	if (argc != 7) {
 		fprintf(stderr, "Usage...\n\n");
 		fprintf(stderr, " Exactly as given in the assignment:\n");
-		fprintf(stderr, " $ ./imEnhance in_file.pgm out_file.avg.pgm out_file.var.pgm out_file.med.pgm outfile.enh.pgm\n");
+		fprintf(stderr, " $ ./imEnhance in_file.pgm out_file.avg.pgm out_file.var.pgm out_file.med.pgm outfile.enh.pgm 3\n");
 		exit(252);
 	}
 	int window_size = atoi(argv[6]);
