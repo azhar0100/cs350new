@@ -21,4 +21,4 @@ clean:
 
 test:
 	rm -rf test_output
-	./run_tests
+	./run_tests.sh
