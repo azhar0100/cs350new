@@ -1,0 +1,24 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>~/code/cs350/assignment_02/knuth_algo.py.html</title>
+<meta name="Generator" content="Vim/7.2">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#000000" text="#ffffff"><font face="monospace">
+<font color="#ffff60"><b>def</b></font>&nbsp;<font color="#40ffff">online_variance</font>(data):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;n = 0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;mean = 0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;M2 = 0<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff60"><b>for</b></font>&nbsp;x <font color="#ffff60"><b>in</b></font>&nbsp;data:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;n = n + 1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delta = x - mean<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mean = mean + delta/n<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;M2 = M2 + delta*(x - mean)&nbsp;&nbsp;<font color="#80a0ff"># This expression uses the new value of mean</font><br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;variance_n = M2/n<br>
+&nbsp;&nbsp;&nbsp;&nbsp;variance = M2/(n - 1)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff60"><b>return</b></font>&nbsp;variance<br>
+</font></body>
+</html>

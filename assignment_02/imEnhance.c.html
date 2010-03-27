@@ -1,0 +1,275 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>~/code/cs350/assignment_02/imEnhance.c.html</title>
+<meta name="Generator" content="Vim/7.2">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#000000" text="#cccccc"><font face="monospace">
+<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Includes </font><font color="#87ceeb">*/</font><br>
+<font color="#cd5c5c">#include </font><font color="#ffa0a0">&lt;stdio.h&gt;</font><br>
+<font color="#cd5c5c">#include </font><font color="#ffa0a0">&lt;stdlib.h&gt;</font><br>
+<font color="#cd5c5c">#include </font><font color="#ffa0a0">&lt;math.h&gt;</font><br>
+<font color="#cd5c5c">#include </font><font color="#ffa0a0">&lt;string.h&gt;</font><br>
+<br>
+<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;The provided library for reading/writing PBM images. </font><font color="#87ceeb">*/</font><br>
+<font color="#cd5c5c">#include </font><font color="#ffa0a0">&quot;iplib2New-modified.c&quot;</font><br>
+<br>
+<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Represents a rectangular (not necessarily sqaure) sub-region of a larger (or equally-sized) rectangular region. </font><font color="#87ceeb">*/</font><br>
+<font color="#bdb76b"><b>typedef</b></font>&nbsp;<font color="#bdb76b"><b>struct</b></font>&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;upper_left_row;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;upper_left_col;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;lower_right_row;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;lower_right_col;<br>
+} window_t;<br>
+<br>
+<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Prototypes </font><font color="#87ceeb">*/</font><br>
+window_t select_window(<font color="#bdb76b"><b>int</b></font>&nbsp;size, <font color="#bdb76b"><b>int</b></font>&nbsp;row, <font color="#bdb76b"><b>int</b></font>&nbsp;col, <font color="#bdb76b"><b>int</b></font>&nbsp;max_rows, <font color="#bdb76b"><b>int</b></font>&nbsp;max_cols);<br>
+<font color="#bdb76b"><b>void</b></font>&nbsp;windowcalc_mean_and_variance(image_ptr image, <font color="#bdb76b"><b>int</b></font>&nbsp;image_width, window_t window, <font color="#bdb76b"><b>double</b></font>* result_mean, <font color="#bdb76b"><b>double</b></font>* result_variance);<br>
+<font color="#bdb76b"><b>void</b></font>&nbsp;windowcalc_median(image_ptr image, <font color="#bdb76b"><b>int</b></font>&nbsp;image_width, window_t window, <font color="#bdb76b"><b>double</b></font>* result_median);<br>
+<font color="#bdb76b"><b>int</b></font>&nbsp;calc_enhanced(<font color="#bdb76b"><b>unsigned</b></font>&nbsp;<font color="#bdb76b"><b>char</b></font>&nbsp;input_pixel, <font color="#bdb76b"><b>double</b></font>&nbsp;overall_mean, <font color="#bdb76b"><b>double</b></font>&nbsp;overall_stddev, <font color="#bdb76b"><b>double</b></font>&nbsp;window_mean, <font color="#bdb76b"><b>double</b></font>&nbsp;window_stddev );<br>
+<br>
+<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Integer comparison function for use with the stdlib's Qsort. </font><font color="#87ceeb">*/</font><br>
+<font color="#bdb76b"><b>int</b></font>&nbsp;int_compare(<font color="#bdb76b"><b>const</b></font>&nbsp;<font color="#bdb76b"><b>void</b></font>&nbsp;*p1, <font color="#bdb76b"><b>const</b></font>&nbsp;<font color="#bdb76b"><b>void</b></font>&nbsp;*p2) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>return</b></font>&nbsp;( *(<font color="#bdb76b"><b>int</b></font>*)p1 - *(<font color="#bdb76b"><b>int</b></font>*)p2 );<br>
+}<br>
+<br>
+<br>
+<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;main() </font><font color="#87ceeb">*/</font><br>
+<font color="#bdb76b"><b>int</b></font>&nbsp;main(<font color="#bdb76b"><b>int</b></font>&nbsp;argc, <font color="#bdb76b"><b>char</b></font>&nbsp;**argv) {<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Check arguments. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>&nbsp;(argc != <font color="#ffa0a0">7</font>) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fprintf(<font color="#ffa0a0">stderr</font>, <font color="#ffa0a0">&quot;Usage...</font><font color="#ffdead">\n\n</font><font color="#ffa0a0">&quot;</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fprintf(<font color="#ffa0a0">stderr</font>, <font color="#ffa0a0">&quot; Exactly as given in the assignment:</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fprintf(<font color="#ffa0a0">stderr</font>, <font color="#ffa0a0">&quot; $ ./imEnhance in_file.pgm out_file.avg.pgm out_file.var.pgm out_file.med.pgm outfile.enh.pgm 3</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit(<font color="#ffa0a0">252</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;window_size = atoi(argv[<font color="#ffa0a0">6</font>]);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>&nbsp;(window_size &lt; <font color="#ffa0a0">3</font>) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fprintf(<font color="#ffa0a0">stderr</font>, <font color="#ffa0a0">&quot;Window size must be integer &gt;= 3.</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Attempt to read the input image. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;image_ptr Image = <font color="#ffa0a0">NULL</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;rows, cols, type;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Image = read_pnm(argv[<font color="#ffa0a0">1</font>], &amp;rows, &amp;cols, &amp;type);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>&nbsp;(Image == <font color="#ffa0a0">NULL</font>) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fprintf(<font color="#ffa0a0">stderr</font>, <font color="#ffa0a0">&quot;Failed to open </font><font color="#ffdead">\&quot;</font><font color="#ffdead">%s</font><font color="#ffdead">\&quot;</font><font color="#ffa0a0">&nbsp;as input image.</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>, argv[<font color="#ffa0a0">1</font>]);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit(<font color="#ffa0a0">254</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>(type != <font color="#ffa0a0">5</font>){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fprintf(<font color="#ffa0a0">stderr</font>, <font color="#ffa0a0">&quot;Sorry, but I can only handle Type 5 PBM's, i.e., greyscale only!</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit(<font color="#ffa0a0">10</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;Processing a Type </font><font color="#ffdead">%d</font><font color="#ffa0a0">&nbsp;image, </font><font color="#ffdead">%d</font><font color="#ffa0a0">x</font><font color="#ffdead">%d</font><font color="#ffa0a0">&nbsp;pixels, window size is </font><font color="#ffdead">%d</font><font color="#ffa0a0">x</font><font color="#ffdead">%d</font><font color="#ffa0a0">&nbsp;pixels ...</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type, rows, cols, window_size, window_size);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;&nbsp;&nbsp;&nbsp;&nbsp;File: </font><font color="#ffdead">\&quot;</font><font color="#ffdead">%s</font><font color="#ffdead">\&quot;\n</font><font color="#ffa0a0">&quot;</font>, argv[<font color="#ffa0a0">1</font>]);<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Calculate overall statistics for the original image. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Note: This special-valued window represents the entire image. Use with care. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window_t ENTIRE_IMAGE = { <font color="#ffa0a0">0</font>, <font color="#ffa0a0">0</font>, rows-<font color="#ffa0a0">1</font>, cols-<font color="#ffa0a0">1</font>&nbsp;};<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>double</b></font>&nbsp;mean, variance, median, stddev;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;windowcalc_mean_and_variance(Image, cols, ENTIRE_IMAGE, &amp;mean, &amp;variance);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;windowcalc_median(Image, cols, ENTIRE_IMAGE, &amp;median);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stddev = sqrt(variance);<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Allocate additional memory to hold our output images. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;image_ptr Mean_Image&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= (image_ptr) malloc(rows*cols);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;image_ptr Median_Image&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= (image_ptr) malloc(rows*cols);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;image_ptr Enhanced_Image&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= (image_ptr) malloc(rows*cols);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;image_ptr Variance_Image&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= (image_ptr) malloc(rows*cols);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>&nbsp;( !(Mean_Image &amp;&amp; Variance_Image &amp;&amp; Median_Image &amp;&amp; Enhanced_Image))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fprintf(<font color="#ffa0a0">stderr</font>, <font color="#ffa0a0">&quot;Could not allocate memory.</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit(<font color="#ffa0a0">251</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Iterate over the input image, populating the others along the way. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>double</b></font>&nbsp;window_mean, window_variance, window_median, window_stddev;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;i, j;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>for</b></font>&nbsp;(i=<font color="#ffa0a0">0</font>; i&lt;rows; i++){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>for</b></font>&nbsp;(j=<font color="#ffa0a0">0</font>; j&lt;cols; j++) {<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Choose the subregion of interest (window) around this pixel. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window_t window = select_window(window_size, i, j, rows, cols);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Calculate the median of just the window. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;windowcalc_median(Image, cols, window, &amp;window_median);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Calculate the mean and variance of just the window. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;windowcalc_mean_and_variance(Image, cols, window, &amp;window_mean, &amp;window_variance);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Calculate standard deviation of just the window. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window_stddev = sqrt(window_variance);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Calculate the enhanced value of this pixel. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;window_enhanced = calc_enhanced( Image[i*cols+j], mean, stddev, window_mean, window_stddev );<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Assignments to the output images. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mean_Image[i*cols+j]&nbsp;&nbsp;&nbsp;&nbsp; = window_mean;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Median_Image[i*cols+j]&nbsp;&nbsp; = window_median;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enhanced_Image[i*cols+j] = window_enhanced;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Variance_Image[i*cols+j] = window_stddev;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Calculate some other statistics, as required by the assignment. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;NOTE!!&nbsp;&nbsp;variance_image_* is really stddev_image_*&nbsp;&nbsp;!! </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>double</b></font>&nbsp;median_image_median,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mean_image_mean,&nbsp;&nbsp;&nbsp;&nbsp; mean_image_variance,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; variance_image_mean, variance_image_variance,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enhanced_image_mean, enhanced_image_variance;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;windowcalc_median(Median_Image, cols, ENTIRE_IMAGE, &amp;median_image_median);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;windowcalc_mean_and_variance(Mean_Image, cols, ENTIRE_IMAGE, &amp;mean_image_mean, &amp;mean_image_variance);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;windowcalc_mean_and_variance(Variance_Image, cols, ENTIRE_IMAGE, &amp;variance_image_mean, &amp;variance_image_variance);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;windowcalc_mean_and_variance(Enhanced_Image, cols, ENTIRE_IMAGE, &amp;enhanced_image_mean, &amp;enhanced_image_variance);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;And then print them out.. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;&nbsp;&nbsp;&nbsp;&nbsp;STATISTICS:</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Numbering corresponds to the requirements stated in the assignment.)</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vi. Original Image</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1. Mean&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(M):&nbsp;&nbsp;&nbsp;&nbsp; </font><font color="#ffdead">%8.2f</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>, mean);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. Std. Dev. (S):&nbsp;&nbsp;&nbsp;&nbsp; </font><font color="#ffdead">%8.2f</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>, stddev);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3. Median&nbsp;&nbsp;&nbsp;&nbsp;(Q):&nbsp;&nbsp;&nbsp;&nbsp; </font><font color="#ffdead">%8.2f</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>, median);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vii. From returned results</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1. Mean of Block Means:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </font><font color="#ffdead">%8.2f</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>, mean_image_mean);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. Median of Block Medians:&nbsp;&nbsp; </font><font color="#ffdead">%8.2f</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>, median_image_median);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3. Std. Dev. of Block Means:&nbsp;&nbsp;</font><font color="#ffdead">%8.2f</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>, sqrt(mean_image_variance));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4. Mean of Block Std. Dev.'s: </font><font color="#ffdead">%8.2f</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>, variance_image_mean);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5. Enhanced Image Mean:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </font><font color="#ffdead">%8.2f</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>, enhanced_image_mean);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#ffa0a0">&quot;... done.</font><font color="#ffdead">\n\n</font><font color="#ffa0a0">&quot;</font>);<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Variance image is too dark, so we multiply it by 2 for human eyes. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>for</b></font>&nbsp;(i=<font color="#ffa0a0">0</font>; i&lt;rows; i++) <font color="#f0e68c"><b>for</b></font>&nbsp;(j=<font color="#ffa0a0">0</font>; j&lt;cols; j++) Variance_Image[i*cols+j] *= <font color="#ffa0a0">2</font>;<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Write the in-memory output images to their files. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;write_pnm( Mean_Image,&nbsp;&nbsp;&nbsp;&nbsp; argv[<font color="#ffa0a0">2</font>], rows, cols, type);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;write_pnm( Variance_Image, argv[<font color="#ffa0a0">3</font>], rows, cols, type);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;write_pnm( Median_Image,&nbsp;&nbsp; argv[<font color="#ffa0a0">4</font>], rows, cols, type);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;write_pnm( Enhanced_Image, argv[<font color="#ffa0a0">5</font>], rows, cols, type);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit(<font color="#ffa0a0">0</font>); <font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;with much success! </font><font color="#87ceeb">*/</font><br>
+}<br>
+<br>
+<br>
+<font color="#87ceeb">/*</font><font color="#87ceeb">*****************</font><font color="#87ceeb">*/</font><br>
+<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;OTHER FUNCTIONS </font><font color="#87ceeb">*/</font><br>
+<font color="#87ceeb">/*</font><font color="#87ceeb">*****************</font><font color="#87ceeb">*/</font><br>
+<br>
+<br>
+<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Selects a square window with sides of length max_cols centered at row,col from the larger region of size max_rows x max_cols. </font><font color="#87ceeb">*/</font><br>
+<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Note, if the square window would exceed the bounds of the larger region, the window will be cropped to fit inside it instead. </font><font color="#87ceeb">*/</font><br>
+<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;This means that this function regularly returns non-square rectangular windows. </font><font color="#87ceeb">*/</font><br>
+window_t select_window(<font color="#bdb76b"><b>int</b></font>&nbsp;size, <font color="#bdb76b"><b>int</b></font>&nbsp;row, <font color="#bdb76b"><b>int</b></font>&nbsp;col, <font color="#bdb76b"><b>int</b></font>&nbsp;max_rows, <font color="#bdb76b"><b>int</b></font>&nbsp;max_cols) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Even arguments for size do not produce even-length window sides; size = 6 is equivalent to size = 7. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window_t window;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.upper_left_row&nbsp;&nbsp;= row - size/<font color="#ffa0a0">2</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.upper_left_col&nbsp;&nbsp;= col - size/<font color="#ffa0a0">2</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.lower_right_row = row + size/<font color="#ffa0a0">2</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.lower_right_col = col + size/<font color="#ffa0a0">2</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>&nbsp;( window.upper_left_row &lt; <font color="#ffa0a0">0</font>&nbsp;) window.upper_left_row = <font color="#ffa0a0">0</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>&nbsp;( window.upper_left_col &lt; <font color="#ffa0a0">0</font>&nbsp;) window.upper_left_col = <font color="#ffa0a0">0</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>&nbsp;( window.lower_right_row &gt; max_rows-<font color="#ffa0a0">1</font>&nbsp;) window.lower_right_row = max_rows-<font color="#ffa0a0">1</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>&nbsp;( window.lower_right_col &gt; max_cols-<font color="#ffa0a0">1</font>&nbsp;) window.lower_right_col = max_cols-<font color="#ffa0a0">1</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>return</b></font>&nbsp;window;<br>
+}<br>
+<br>
+<br>
+<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Calculate the median of a rectangular region. </font><font color="#87ceeb">*/</font><br>
+<font color="#bdb76b"><b>void</b></font>&nbsp;windowcalc_median(image_ptr image, <font color="#bdb76b"><b>int</b></font>&nbsp;image_width, window_t window, <font color="#bdb76b"><b>double</b></font>* result_median) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;rows = window.lower_right_row - window.upper_left_row + <font color="#ffa0a0">1</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;cols = window.lower_right_col - window.upper_left_col + <font color="#ffa0a0">1</font>;<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Copy the window into our own image object, because our median algo modifies the array it operates on. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;image_ptr image_sorted = (image_ptr) malloc(rows*cols*<font color="#f0e68c"><b>sizeof</b></font>(<font color="#bdb76b"><b>unsigned</b></font>&nbsp;<font color="#bdb76b"><b>char</b></font>));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>&nbsp;(image_sorted == <font color="#ffa0a0">NULL</font>) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fprintf(<font color="#ffa0a0">stderr</font>, <font color="#ffa0a0">&quot;Unable to allocate memory.</font><font color="#ffdead">\n</font><font color="#ffa0a0">&quot;</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit(<font color="#ffa0a0">253</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;i, j;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;n = <font color="#ffa0a0">0</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>for</b></font>&nbsp;( i=window.upper_left_row; i&lt;=window.lower_right_row; i++ ) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>for</b></font>&nbsp;( j=window.upper_left_col; j&lt;=window.lower_right_col; j++ ) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;image_sorted[n] = image[i*image_width+j];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;n++;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Use the standard-library Quicksort to find the median. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;qsort(image_sorted, rows*cols, <font color="#f0e68c"><b>sizeof</b></font>(<font color="#bdb76b"><b>unsigned</b></font>&nbsp;<font color="#bdb76b"><b>char</b></font>), int_compare);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>double</b></font>&nbsp;median = image_sorted[ rows*cols/<font color="#ffa0a0">2</font>&nbsp;];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>&nbsp;( (rows*cols) % <font color="#ffa0a0">2</font>&nbsp;== <font color="#ffa0a0">0</font>&nbsp;) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;median = (median + image_sorted[ rows*cols/<font color="#ffa0a0">2</font>-<font color="#ffa0a0">1</font>&nbsp;])/<font color="#ffa0a0">2</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;free(image_sorted);<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Return results via output arguments. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>&nbsp;(result_median != <font color="#ffa0a0">NULL</font>) *result_median = median;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>return</b></font>; <font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;void </font><font color="#87ceeb">*/</font><br>
+}<br>
+<br>
+<br>
+<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Calculate the mean and variance of a rectangular region. </font><font color="#87ceeb">*/</font><br>
+<font color="#bdb76b"><b>void</b></font>&nbsp;windowcalc_mean_and_variance(image_ptr image, <font color="#bdb76b"><b>int</b></font>&nbsp;image_width, window_t window, <font color="#bdb76b"><b>double</b></font>* result_mean, <font color="#bdb76b"><b>double</b></font>* result_variance) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>unsigned</b></font>&nbsp;<font color="#bdb76b"><b>long</b></font>&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;n = <font color="#ffa0a0">0</font>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Pixel count </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>double</b></font>&nbsp;mean&nbsp;&nbsp;= <font color="#ffa0a0">0.0</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>double</b></font>&nbsp;delta = <font color="#ffa0a0">0.0</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>double</b></font>&nbsp;M2&nbsp;&nbsp;&nbsp;&nbsp;= <font color="#ffa0a0">0.0</font>;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;i, j;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>for</b></font>&nbsp;( i=window.upper_left_row; i&lt;=window.lower_right_row; i++ ) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>for</b></font>&nbsp;( j=window.upper_left_col; j&lt;=window.lower_right_col; j++ ) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;n++;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>unsigned</b></font>&nbsp;<font color="#bdb76b"><b>int</b></font>&nbsp;pixel_value = image[i*image_width + j];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delta = pixel_value - mean;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mean = mean + delta / n;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;M2 = M2 + delta * (pixel_value - mean);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>double</b></font>&nbsp;variance = M2/(n - <font color="#ffa0a0">1</font>);<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Return results via output arguments. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>&nbsp;(result_mean != <font color="#ffa0a0">NULL</font>) *result_mean = mean;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>&nbsp;(result_variance != <font color="#ffa0a0">NULL</font>) *result_variance = variance;<br>
+}<br>
+<br>
+<br>
+<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Calculate the enhanced value for a pixel given the other required terms. </font><font color="#87ceeb">*/</font><br>
+<font color="#bdb76b"><b>int</b></font>&nbsp;calc_enhanced(<font color="#bdb76b"><b>unsigned</b></font>&nbsp;<font color="#bdb76b"><b>char</b></font>&nbsp;input_pixel, <font color="#bdb76b"><b>double</b></font>&nbsp;overall_mean, <font color="#bdb76b"><b>double</b></font>&nbsp;overall_stddev, <font color="#bdb76b"><b>double</b></font>&nbsp;window_mean, <font color="#bdb76b"><b>double</b></font>&nbsp;window_stddev ){<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;Constants for the assignment-provided transformation. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>double</b></font>&nbsp;A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = <font color="#ffa0a0">2.00</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>double</b></font>&nbsp;C1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <font color="#ffa0a0">0.40</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>double</b></font>&nbsp;C2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <font color="#ffa0a0">0.02</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#bdb76b"><b>double</b></font>&nbsp;C3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <font color="#ffa0a0">0.40</font>;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#87ceeb">/*</font><font color="#87ceeb">&nbsp;The actual transformation:&nbsp;&nbsp;Selective brightening. </font><font color="#87ceeb">*/</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>if</b></font>(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(window_mean &lt;= overall_mean * C1) &amp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(overall_stddev * C2 &lt;= window_stddev) &amp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(overall_stddev * C3 &lt;= window_stddev)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>return</b></font>&nbsp;A * input_pixel;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <font color="#f0e68c"><b>else</b></font>&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#f0e68c"><b>return</b></font>&nbsp;input_pixel;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}<br>
+<br>
+</font></body>
+</html>
