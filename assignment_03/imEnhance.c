@@ -3,6 +3,12 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <pthread.h>
+#include "int_compare.h"
+
+/* Defines */
+#define unless(x) if(!(x))
+#define num_threads 4
 
 /* The provided library for reading/writing PBM images. */
 #include "iplib2New-modified.c"
@@ -15,25 +21,34 @@ typedef struct {
 	int lower_right_col;
 } window_t;
 
+/* Arguments to child threads/processes. */
+typedef struct {
+	int rows, cols, window_size, thread_id;
+	double mean, stddev;
+} iterate_input_image_args_t;
+
 /* Prototypes */
 window_t select_window(int size, int row, int col, int max_rows, int max_cols);
+int calc_enhanced(unsigned char input_pixel, double overall_mean, double overall_stddev, double window_mean, double window_stddev );
 void windowcalc_mean_and_variance(image_ptr image, int image_width, window_t window, double* result_mean, double* result_variance);
 void windowcalc_median(image_ptr image, int image_width, window_t window, double* result_median);
-int calc_enhanced(unsigned char input_pixel, double overall_mean, double overall_stddev, double window_mean, double window_stddev );
+void iterate_input_image(iterate_input_image_args_t args);
 
-/* Integer comparison function for use with the stdlib's Qsort. */
-int int_compare(const void *p1, const void *p2) {
-	return ( *(int*)p1 - *(int*)p2 );
-}
 
+/* Global Variables */
+image_ptr Image = NULL;
+image_ptr Mean_Image = NULL;
+image_ptr Variance_Image = NULL;
+image_ptr Median_Image = NULL;
+image_ptr Enhanced_Image = NULL;
 
 /* main() */
 int main(int argc, char **argv) {
+	int i, j; /* loop counters */
 
 	/* Check arguments. */
 	if (argc != 7) {
 		fprintf(stderr, "Usage...\n\n");
-		fprintf(stderr, " Exactly as given in the assignment:\n");
 		fprintf(stderr, " $ ./imEnhance in_file.pgm out_file.avg.pgm out_file.var.pgm out_file.med.pgm outfile.enh.pgm 3\n");
 		exit(252);
 	}
@@ -44,7 +59,6 @@ int main(int argc, char **argv) {
 
 
 	/* Attempt to read the input image. */
-	image_ptr Image = NULL;
 	int rows, cols, type;
 	Image = read_pnm(argv[1], &rows, &cols, &type);
 	if (Image == NULL) {
@@ -72,45 +86,36 @@ int main(int argc, char **argv) {
 
 
 	/* Allocate additional memory to hold our output images. */
-	image_ptr Mean_Image		= (image_ptr) malloc(rows*cols);
-	image_ptr Median_Image		= (image_ptr) malloc(rows*cols);
-	image_ptr Enhanced_Image	= (image_ptr) malloc(rows*cols);
-	image_ptr Variance_Image	= (image_ptr) malloc(rows*cols);
-	if ( !(Mean_Image && Variance_Image && Median_Image && Enhanced_Image))
+	Mean_Image	= (image_ptr) malloc(rows*cols);
+	Variance_Image	= (image_ptr) malloc(rows*cols);
+	Median_Image	= (image_ptr) malloc(rows*cols);
+	Enhanced_Image	= (image_ptr) malloc(rows*cols);
+	unless(Mean_Image && Variance_Image && Median_Image && Enhanced_Image)
 	{
-		fprintf(stderr, "Could not allocate memory.\n");
+		perror("Could not allocate memory\n");
 		exit(251);
 	}
 
-
-	/* Iterate over the input image, populating the others along the way. */
-	double window_mean, window_variance, window_median, window_stddev;
-	int i, j;
-	for (i=0; i<rows; i++){
-		for (j=0; j<cols; j++) {
-
-			/* Choose the subregion of interest (window) around this pixel. */
-			window_t window = select_window(window_size, i, j, rows, cols);
-
-			/* Calculate the median of just the window. */
-			windowcalc_median(Image, cols, window, &window_median);
-
-			/* Calculate the mean and variance of just the window. */
-			windowcalc_mean_and_variance(Image, cols, window, &window_mean, &window_variance);
-
-			/* Calculate standard deviation of just the window. */
-			window_stddev = sqrt(window_variance);
-
-			/* Calculate the enhanced value of this pixel. */
-			int window_enhanced = calc_enhanced( Image[i*cols+j], mean, stddev, window_mean, window_stddev );
-
-			/* Assignments to the output images. */
-			Mean_Image[i*cols+j]     = window_mean;
-			Median_Image[i*cols+j]   = window_median;
-			Enhanced_Image[i*cols+j] = window_enhanced;
-			Variance_Image[i*cols+j] = window_stddev;
+	/* Spawn child threads. */
+	pthread_t children[num_threads];
+	for (i=0 ; i<num_threads ; i++){
+		iterate_input_image_args_t args = {rows, cols, window_size, i, mean, stddev};
+		if(pthread_create(&children[i], NULL, (void *)&iterate_input_image, (void *)&args)){
+			perror("pthread_create");
+			exit(42);
 		}
 	}
+
+	/* Wait for all child threads to complete. */
+	for (i=0 ; i<num_threads ; i++){
+		if(pthread_join(children[i], NULL)){
+			perror("pthread_join");
+			exit(41);
+		}
+	}
+
+
+
 
 
 	/* Calculate some other statistics, as required by the assignment. */
@@ -154,6 +159,40 @@ int main(int argc, char **argv) {
 	exit(0); /* with much success! */
 }
 
+
+/* Iterate over the input image, populating the others along the way. */
+void iterate_input_image(iterate_input_image_args_t args){
+	int i, j; /* loop counters */
+	double window_mean, window_variance, window_median, window_stddev;
+
+	for (i=0; i<args.rows; i++){
+		for (j=0; j<args.cols; j++) {
+
+			if (num_threads % args.thread_id == 0) {
+				/* Choose the subregion of interest (window) around this pixel. */
+				window_t window = select_window(args.window_size, i, j, args.rows, args.cols);
+
+				/* Calculate the median of just the window. */
+				windowcalc_median(Image, args.cols, window, &window_median);
+
+				/* Calculate the mean and variance of just the window. */
+				windowcalc_mean_and_variance(Image, args.cols, window, &window_mean, &window_variance);
+
+				/* Calculate standard deviation of just the window. */
+				window_stddev = sqrt(window_variance);
+
+				/* Calculate the enhanced value of this pixel. */
+				int window_enhanced = calc_enhanced( Image[i*args.cols+j], args.mean, args.stddev, window_mean, window_stddev );
+
+				/* Assignments to the output images. */
+				Mean_Image[i*args.cols+j]     = window_mean;
+				Median_Image[i*args.cols+j]   = window_median;
+				Enhanced_Image[i*args.cols+j] = window_enhanced;
+				Variance_Image[i*args.cols+j] = window_stddev;
+			}
+		}
+	}
+}
 
 /*******************/
 /* OTHER FUNCTIONS */
