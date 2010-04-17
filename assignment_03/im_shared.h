@@ -21,6 +21,7 @@ typedef struct {
 
 
 /* Global Variables */
+int num_threads;
 window_t ENTIRE_IMAGE = {0,0,0,0};      /* special window       */
 int rows, cols, type, window_size;      /* global state         */
 double mean, stddev, variance, median;  /* input image stats    */
@@ -138,16 +139,24 @@ int calc_enhanced(unsigned char input_pixel, double overall_mean, double overall
 
 
 void check_args(int argc, char **argv) {
-	if (argc != 7) {
+	if (argc != 8) {
 		/* Usage */
 		fprintf(stderr, "USAGE:\n\n");
-		fprintf(stderr, " $ ./imEnhance in_file.pgm out_file.avg.pgm out_file.var.pgm out_file.med.pgm outfile.enh.pgm 3\n");
+		fprintf(stderr, " $ ./imEnhance \\\n");
+		fprintf(stderr, "       <input_file> <avg_file> <var_file> <med_file> <enh_file> <window_size> <num_threads>\n");
 		exit(252);
 	}
 	window_size = atoi(argv[6]);
 	if (window_size < 3) {
 		fprintf(stderr, "Window size must be integer >= 3.\n");
+		exit(251);
 	}
+	num_threads = atoi(argv[7]);
+	if ( num_threads < 1 || num_threads > 16 ){
+		fprintf(stderr, "Number of threads must be integer >= 1 and <= 16.\n");
+		exit(250);
+	}
+	printf("We will be processing using ** %d ** child threads.\n", num_threads);
 }
 
 

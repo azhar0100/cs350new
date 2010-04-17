@@ -3,17 +3,13 @@
 #include "im_shared.h"		/* all the stuff shared between both versions	*/
 
 
-/* Defines */
-#define num_threads 4		/* Number of threads... to be run-time modifiable.*/
-
-
 /* Prototypes */
 void *iterate_input_image(void *arg);
 int get_child_id(void);
 
 
 /* Global Variables */
-pthread_t children[num_threads];	/* array of children	*/
+pthread_t *children;	/* array of children	*/
 
 
 /* main() */
@@ -28,6 +24,13 @@ int main(int argc, char **argv) {
 	calc_overall_statistics();
 	allocate_image_memory();
 
+
+	/* Allocate our array of child thread objects. */
+	unless( children = (pthread_t *)malloc(num_threads * sizeof(pthread_t)) ){
+		perror("Couldn't allocate memory");
+		exit(43);
+	}
+	
 
 	/* Spawn child threads. */
 	for (i=0 ; i<num_threads ; i++){
