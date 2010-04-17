@@ -42,7 +42,7 @@ int main(void) {
 
 void * child(void *arg){ /* Start-of-execution for spawned threads. */
 	int thread_id = get_thread_id();
-	message[thread_id] = thread_id + 'A';
+	message[thread_id] = thread_id + 65;
 	return NULL;
 }
 
