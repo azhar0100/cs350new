@@ -17,7 +17,7 @@ timEnhance: timEnhance.c iplib2New-modified.c
 #	^^ or you might need a debug build (ok, more likely, I'll need it.)
 
 clean:
-	rm -rf imEnhance imEnhance.gprof.o gmon.out test_output
+	rm -rf timEnhance timEnhance.gprof.o gmon.out test_output simple_thread
 
 test:
 	rm -rf test_output

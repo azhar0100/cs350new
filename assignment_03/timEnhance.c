@@ -1,19 +1,20 @@
 /* Includes */
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
-#include <pthread.h>
-#include "int_compare.h"
+#include <math.h>		/* sqrt(), compile with “-lm”			*/
+#include <pthread.h>		/* POSIX threads				*/
+#include "int_compare.h"	/* comparison function for stdlib's qsort()	*/
+#include "iplib2New-modified.c"	/* provided for PBM image file i/o		*/
+
 
 /* Defines */
-#define unless(x) if(!(x))
-#define num_threads 4
+#define unless(x) if(!(x))	/* I always liked this about perl..		*/
+#define num_threads 4		/* Number of threads... to be run-time modifiable.*/
 
-/* The provided library for reading/writing PBM images. */
-#include "iplib2New-modified.c"
 
-/* Represents a rectangular (not necessarily sqaure) sub-region of a larger (or equally-sized) rectangular region. */
+/* Type: window_t
+ *   Represents a rectangular (not necessarily sqaure) sub-region of a larger (or equally-sized) rectangular region. */
 typedef struct {
 	int upper_left_row;
 	int upper_left_col;
@@ -21,18 +22,14 @@ typedef struct {
 	int lower_right_col;
 } window_t;
 
-/* Arguments to child threads/processes. */
-typedef struct {
-	int rows, cols, window_size, thread_id;
-	double mean, stddev;
-} iterate_input_image_args_t;
 
 /* Prototypes */
 window_t select_window(int size, int row, int col, int max_rows, int max_cols);
 int calc_enhanced(unsigned char input_pixel, double overall_mean, double overall_stddev, double window_mean, double window_stddev );
 void windowcalc_mean_and_variance(image_ptr image, int image_width, window_t window, double* result_mean, double* result_variance);
 void windowcalc_median(image_ptr image, int image_width, window_t window, double* result_median);
-void iterate_input_image(iterate_input_image_args_t args);
+void *iterate_input_image(void *arg);
+int get_child_id(void);
 
 
 /* Global Variables */
@@ -41,6 +38,10 @@ image_ptr Mean_Image = NULL;
 image_ptr Variance_Image = NULL;
 image_ptr Median_Image = NULL;
 image_ptr Enhanced_Image = NULL;
+pthread_t children[num_threads];
+int rows, cols, window_size;
+double mean, stddev;
+
 
 /* main() */
 int main(int argc, char **argv) {
@@ -52,14 +53,14 @@ int main(int argc, char **argv) {
 		fprintf(stderr, " $ ./imEnhance in_file.pgm out_file.avg.pgm out_file.var.pgm out_file.med.pgm outfile.enh.pgm 3\n");
 		exit(252);
 	}
-	int window_size = atoi(argv[6]);
+	window_size = atoi(argv[6]);
 	if (window_size < 3) {
 		fprintf(stderr, "Window size must be integer >= 3.\n");
 	}
 
 
 	/* Attempt to read the input image. */
-	int rows, cols, type;
+	int type;
 	Image = read_pnm(argv[1], &rows, &cols, &type);
 	if (Image == NULL) {
 		fprintf(stderr, "Failed to open \"%s\" as input image.\n", argv[1]);
@@ -79,7 +80,7 @@ int main(int argc, char **argv) {
 	/* Calculate overall statistics for the original image. */
 	/* Note: This special-valued window represents the entire image. Use with care. */
 	window_t ENTIRE_IMAGE = { 0, 0, rows-1, cols-1 };
-	double mean, variance, median, stddev;
+	double variance, median;
 	windowcalc_mean_and_variance(Image, cols, ENTIRE_IMAGE, &mean, &variance);
 	windowcalc_median(Image, cols, ENTIRE_IMAGE, &median);
 	stddev = sqrt(variance);
@@ -97,11 +98,9 @@ int main(int argc, char **argv) {
 	}
 
 	/* Spawn child threads. */
-	pthread_t children[num_threads];
 	for (i=0 ; i<num_threads ; i++){
-		iterate_input_image_args_t args = {rows, cols, window_size, i, mean, stddev};
-		if(pthread_create(&children[i], NULL, (void *)&iterate_input_image, (void *)&args)){
-			perror("pthread_create");
+		if(pthread_create(&children[i], NULL, (void *)&iterate_input_image, NULL)){
+			perror("pthread_create"); /*FIXME: fatal()*/
 			exit(42);
 		}
 	}
@@ -109,7 +108,7 @@ int main(int argc, char **argv) {
 	/* Wait for all child threads to complete. */
 	for (i=0 ; i<num_threads ; i++){
 		if(pthread_join(children[i], NULL)){
-			perror("pthread_join");
+			perror("pthread_join"); /*FIXME: fatal()*/
 			exit(41);
 		}
 	}
@@ -161,37 +160,41 @@ int main(int argc, char **argv) {
 
 
 /* Iterate over the input image, populating the others along the way. */
-void iterate_input_image(iterate_input_image_args_t args){
-	int i, j; /* loop counters */
+void *iterate_input_image(void *arg){
+	int i, j, c; /* loop counters */
 	double window_mean, window_variance, window_median, window_stddev;
 
-	for (i=0; i<args.rows; i++){
-		for (j=0; j<args.cols; j++) {
+	int child_id = get_child_id();
 
-			if (num_threads % args.thread_id == 0) {
+	c = 0;
+	for (i=0; i<rows; i++){
+		for (j=0; j<cols; j++) {
+			if (c % num_threads == child_id) {
 				/* Choose the subregion of interest (window) around this pixel. */
-				window_t window = select_window(args.window_size, i, j, args.rows, args.cols);
+				window_t window = select_window(window_size, i, j, rows, cols);
 
 				/* Calculate the median of just the window. */
-				windowcalc_median(Image, args.cols, window, &window_median);
+				windowcalc_median(Image, cols, window, &window_median);
 
 				/* Calculate the mean and variance of just the window. */
-				windowcalc_mean_and_variance(Image, args.cols, window, &window_mean, &window_variance);
+				windowcalc_mean_and_variance(Image, cols, window, &window_mean, &window_variance);
 
 				/* Calculate standard deviation of just the window. */
 				window_stddev = sqrt(window_variance);
 
 				/* Calculate the enhanced value of this pixel. */
-				int window_enhanced = calc_enhanced( Image[i*args.cols+j], args.mean, args.stddev, window_mean, window_stddev );
+				int window_enhanced = calc_enhanced( Image[i*cols+j], mean, stddev, window_mean, window_stddev );
 
 				/* Assignments to the output images. */
-				Mean_Image[i*args.cols+j]     = window_mean;
-				Median_Image[i*args.cols+j]   = window_median;
-				Enhanced_Image[i*args.cols+j] = window_enhanced;
-				Variance_Image[i*args.cols+j] = window_stddev;
+				Mean_Image[i*cols+j]     = window_mean;
+				Median_Image[i*cols+j]   = window_median;
+				Enhanced_Image[i*cols+j] = window_enhanced;
+				Variance_Image[i*cols+j] = window_stddev;
 			}
 		}
 	}
+
+	return NULL;
 }
 
 /*******************/
@@ -300,5 +303,18 @@ int calc_enhanced(unsigned char input_pixel, double overall_mean, double overall
 	} else {
 		return input_pixel;
 	}
+}
+
+
+int get_child_id(void){
+        int i;
+        int child_id = -1;
+        for (i=0; i<num_threads; i++) {
+                if( pthread_equal(pthread_self(), children[i]) ){
+                        child_id = i;
+                        break;
+                }
+        }                                                                                                          
+        return child_id;                                                                                          
 }
 

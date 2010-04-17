@@ -36,16 +36,16 @@
 INPUT_DIR="./test_input"
 OUTPUT_DIR="./test_output"
 
-#imEnhance="./imEnhance.gprof.o"
-imEnhance="./imEnhance"
+#imEnhance="./timEnhance.gprof.o"
+imEnhance="./timEnhance"
 
 mkdir $OUTPUT_DIR
 if [ $? -ne 0 ]; then
 	exit
 fi;
 
-#for n in 3 5 7 9 15; do
-for n in 3; do
+
+for n in 3 5 7 9 15; do
 
 	mkdir "${OUTPUT_DIR}/${n}x${n}"
 
