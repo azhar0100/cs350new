@@ -1,6 +1,6 @@
 /* Includes */
-#include <pthread.h>		/* POSIX threads				*/
-#include "im_shared.h"		/* all the stuff shared between both versions	*/
+#include <pthread.h>		/* POSIX threads */
+#include "im_shared.h"		/* all the stuff shared between both versions (threads and processes) */
 
 
 /* Prototypes */
