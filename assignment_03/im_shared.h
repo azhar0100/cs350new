@@ -136,6 +136,7 @@ int calc_enhanced(unsigned char input_pixel, double overall_mean, double overall
 	}
 }
 
+
 void check_args(int argc, char **argv) {
 	if (argc != 7) {
 		/* Usage */
@@ -148,6 +149,7 @@ void check_args(int argc, char **argv) {
 		fprintf(stderr, "Window size must be integer >= 3.\n");
 	}
 }
+
 
 void read_input_image(char* path) {
 	/* Attempt to read the input image. */
@@ -171,6 +173,7 @@ void read_input_image(char* path) {
 	ENTIRE_IMAGE.lower_right_col = cols - 1;
 }
 
+
 void calc_overall_statistics(void) {
 	/* Calculate overall statistics for the original image. */
 	/* Note: This special-valued window represents the entire image. Use with care. */
@@ -178,6 +181,7 @@ void calc_overall_statistics(void) {
 	windowcalc_median(Image, ENTIRE_IMAGE, &median);
 	stddev = sqrt(variance);
 }
+
 
 void calc_and_print_additional_statistics(void) {
 	/* Calculate some other statistics, as required by the assignment. */
@@ -209,6 +213,7 @@ void calc_and_print_additional_statistics(void) {
 	printf("... done.\n\n");
 }
 
+
 void allocate_image_memory(void){
 	/* Allocate additional memory to hold our output images. */
 	Mean_Image	= (image_ptr) malloc(rows*cols);
@@ -221,6 +226,7 @@ void allocate_image_memory(void){
 		exit(251);
 	}
 }
+
 
 void write_output_images(char *avg_path, char *var_path, char *med_path, char *enh_path) {
 	/* Write the in-memory output images to their files. */

@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 	}
 
 
-	/* Assignments requires lots more statistical info in the output. */
+	/* Assignment requires some more output. */
 	calc_and_print_additional_statistics();
 
 
@@ -55,10 +55,8 @@ int main(int argc, char **argv) {
 	for (i=0; i<rows; i++) for (j=0; j<cols; j++) Variance_Image[i*cols+j] *= 2;
 
 
-	/* And finally, write the required output files. */
+	/* More basics. */
 	write_output_images(argv[2], argv[3], argv[4], argv[5]);
-
-
 	exit(0); /* with much success! */
 }
 
