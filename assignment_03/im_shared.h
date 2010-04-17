@@ -119,10 +119,10 @@ void windowcalc_mean_and_variance(image_ptr image, window_t window, double* resu
 int calc_enhanced(unsigned char input_pixel, double overall_mean, double overall_stddev, double window_mean, double window_stddev ){
 
 	/* Constants for the assignment-provided transformation. */
-	double A	= 2.00;
-	double C1	= 0.40;
-	double C2	= 0.02;
-	double C3	= 0.40;
+	double A	= 4.00;
+	double C1	= 0.80;
+	double C2	= 0.01;
+	double C3	= 0.99;
 
 	/* The actual transformation:  Selective brightening. */
 	if(
