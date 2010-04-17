@@ -1,3 +1,12 @@
+/* Includes */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "iplib2New-modified.c" /* provided for PBM image file i/o              */
+#include "int_compare.h"        /* comparison function for stdlib's qsort()     */
+
+
 /* Defines */
 #define unless(x) if(!(x))      /* I always liked this about perl..             */
 
@@ -44,12 +53,12 @@ window_t select_window(int size, int row, int col, int max_rows, int max_cols) {
 
 /* Calculate the median of a rectangular region. */
 void windowcalc_median(image_ptr image, window_t window, double* result_median) {
-	int rows = window.lower_right_row - window.upper_left_row + 1;
-	int cols = window.lower_right_col - window.upper_left_col + 1;
+	int window_rows = window.lower_right_row - window.upper_left_row + 1;
+	int window_cols = window.lower_right_col - window.upper_left_col + 1;
 
 
 	/* Copy the window into our own image object, because our median algo modifies the array it operates on. */
-	image_ptr image_sorted = (image_ptr) malloc(rows*cols*sizeof(unsigned char));
+	image_ptr image_sorted = (image_ptr) malloc(window_rows*window_cols*sizeof(unsigned char));
 	if (image_sorted == NULL) {
 		fprintf(stderr, "Unable to allocate memory.\n");
 		exit(253);
@@ -66,10 +75,10 @@ void windowcalc_median(image_ptr image, window_t window, double* result_median) 
 
 
 	/* Use the standard-library Quicksort to find the median. */
-	qsort(image_sorted, rows*cols, sizeof(unsigned char), int_compare);
-	double median = image_sorted[ rows*cols/2 ];
-	if ( (rows*cols) % 2 == 0 ) {
-		median = (median + image_sorted[ rows*cols/2-1 ])/2;
+	qsort(image_sorted, window_rows*window_cols, sizeof(unsigned char), int_compare);
+	double median = image_sorted[ window_rows*window_cols/2 ];
+	if ( (window_rows*window_cols) % 2 == 0 ) {
+		median = (median + image_sorted[ window_rows*window_cols/2-1 ])/2;
 	}
 	free(image_sorted);
 

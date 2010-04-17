@@ -1,11 +1,5 @@
 /* Includes */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>		/* sqrt(), compile with “-lm”			*/
 #include <pthread.h>		/* POSIX threads				*/
-#include "int_compare.h"	/* comparison function for stdlib's qsort()	*/
-#include "iplib2New-modified.c"	/* provided for PBM image file i/o		*/
 #include "im_shared.h"		/* all the stuff shared between both versions	*/
 
 
