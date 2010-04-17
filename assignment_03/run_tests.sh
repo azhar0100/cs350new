@@ -33,21 +33,19 @@
 #
 # If you wish to re-run the script, you will need to rm or mv ./test_output.
 
+imEnhance="./timEnhance"
+
 INPUT_DIR="./test_input"
 OUTPUT_DIR="./test_output"
 
-#imEnhance="./timEnhance.gprof.o"
-imEnhance="./timEnhance"
-
 time_cmd="/usr/bin/time"
-
-echo "real, user, sys, window_size, num_threads, image_name, exit_status" > $OUTPUT_DIR/gnu_time.txt
 
 mkdir $OUTPUT_DIR
 if [ $? -ne 0 ]; then
 	exit
 fi;
 
+echo "real, user, sys, window_size, num_threads, image_name, exit_status" > $OUTPUT_DIR/gnu_time.txt
 
 for num_threads in 1 2 3 4 5 7 9 10 16; do	# num_threads
 	for w in 3 7 15; do	# window_size
