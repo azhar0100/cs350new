@@ -1,30 +1,32 @@
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
-
-void child(int arg);
-void get_thread_id(void);
+#include <unistd.h>
 
 #define unless(x) if(!(x))
 
-#define num_threads 5
+void * child(void *arg);
+int get_thread_id(void);
 
-
+/* Six threads... */
+#define num_threads 6
 pthread_t threads[num_threads];
-char *message = "          .";
+
+/* ...will create a 6-character message for us. */
+char message[8] = "      .";
 
 int main(void) {
 	int i;
 
+	/* Create some threads that will go off and do some work, starting in the child() function. */
 	for (i=0; i<num_threads; i++){
-		unless( pthread_create(&threads[i], NULL, (void *)child, NULL) == 0 ){
-		/* if(pthread_create(&children[i], NULL, (void *)&iterate_input_image, (void *)&args)){ ..error.. } */
-
+		unless( pthread_create(&threads[i], NULL, child, NULL) == 0 ){
 			perror("pthread_create returned error");
 			exit(-1); /* abnormal exit. */
 		}
 	}
 
+	/* Wait in turn for all threads to complete execution. */
 	for (i=0; i<num_threads; i++){
 		unless( pthread_join(threads[i], NULL) == 0 ){
 			perror("pthread_join returned error");
@@ -32,29 +34,26 @@ int main(void) {
 		}
 	}
 
+	/* Print out the message they worked together to author. */
 	printf("%s\n", message);
 
 	return 0; /* exit successfully. */
 }
 
-void child(int arg){
-	for (arg=0; arg<num_threads; arg++) {
-		if( pthread_equal(pthread_self(), threads[arg]) ){
-			break;
-			printf("did it.\n");
-		}
-	}
-	message[arg] = 65+arg;
+void * child(void *arg){ /* Start-of-execution for spawned threads. */
+	int thread_id = get_thread_id();
+	message[thread_id] = thread_id + 'A';
+	return NULL;
 }
 
-void get_thread_id(void){
-/*	auto int i;
-	auto int thread_id = -1;
-
+int get_thread_id(void){
+	int i;
+	int thread_id = -1;
+	for (i=0; i<num_threads; i++) {
+		if( pthread_equal(pthread_self(), threads[i]) ){
 			thread_id = i;
 			break;
 		}
 	}
-
-	return thread_id; */ 
+	return thread_id;
 }
