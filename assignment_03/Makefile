@@ -3,10 +3,13 @@
 CC=gcc
 CFLAGS=-Wall
 
-all: timEnhance simple_thread
+all: timEnhance simple_thread simple_thread_pass_an_arg
 
 simple_thread: simple_thread.c 
 	$(CC) $(CFLAGS) -lpthread -D_REENTRANT -o simple_thread simple_thread.c
+
+simple_thread_pass_an_arg: simple_thread_pass_an_arg.c 
+	$(CC) $(CFLAGS) -lpthread -D_REENTRANT -o simple_thread_pass_an_arg simple_thread_pass_an_arg.c
 
 timEnhance: timEnhance.c iplib2New-modified.c im_shared.h
 	$(CC) $(CFLAGS) -O3 -lm -lpthread -D_REENTRANT -o timEnhance         timEnhance.c
@@ -17,8 +20,8 @@ timEnhance: timEnhance.c iplib2New-modified.c im_shared.h
 #	^^ or you might need a debug build (ok, more likely, I'll need it.)
 
 clean:
-	rm -rf timEnhance timEnhance.gprof.o gmon.out test_output simple_thread
+	rm -rf timEnhance timEnhance.gprof.o gmon.out test_output simple_thread simple_thread_pass_an_arg
 
-test:
+test: clean all
 	rm -rf test_output
 	./run_tests.sh
