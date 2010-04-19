@@ -7,13 +7,13 @@
 </head>
 <body bgcolor="#000000" text="#ffffff"><font face="monospace">
 <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;Includes </b></font><font color="#00ffff"><b>*/</b></font><br>
-<font color="#ff40ff">#include </font><font color="#ff40ff"><b>&lt;pthread.h&gt;</b></font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;POSIX threads </b></font><font color="#00ffff"><b>*/</b></font><br>
-<font color="#ff40ff">#include </font><font color="#ff40ff"><b>&quot;im_shared.h&quot;</b></font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;all the stuff shared between both versions (threads and processes) </b></font><font color="#00ffff"><b>*/</b></font><br>
+<font color="#c000c0">#include </font><font color="#ff40ff"><b>&lt;pthread.h&gt;</b></font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;POSIX threads </b></font><font color="#00ffff"><b>*/</b></font><br>
+<font color="#c000c0">#include </font><font color="#ff40ff"><b>&quot;im_shared.h&quot;</b></font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;all the stuff shared between both versions (threads and processes) </b></font><font color="#00ffff"><b>*/</b></font><br>
 <br>
 <br>
 <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;Prototypes </b></font><font color="#00ffff"><b>*/</b></font><br>
-<font color="#00ff00"><b>void</b></font>&nbsp;*iterate_input_image(<font color="#00ff00"><b>void</b></font>&nbsp;*arg);<br>
-<font color="#00ff00"><b>int</b></font>&nbsp;get_child_id(<font color="#00ff00"><b>void</b></font>);<br>
+<font color="#cdff8b"><b>void</b></font>&nbsp;*iterate_input_image(<font color="#cdff8b"><b>void</b></font>&nbsp;*arg);<br>
+<font color="#cdff8b"><b>int</b></font>&nbsp;get_child_id(<font color="#cdff8b"><b>void</b></font>);<br>
 <br>
 <br>
 <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;Global Variables </b></font><font color="#00ffff"><b>*/</b></font><br>
@@ -21,9 +21,9 @@ pthread_t *children;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></fon
 <br>
 <br>
 <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;main() </b></font><font color="#00ffff"><b>*/</b></font><br>
-<font color="#00ff00"><b>int</b></font>&nbsp;main(<font color="#00ff00"><b>int</b></font>&nbsp;argc, <font color="#00ff00"><b>char</b></font>&nbsp;**argv) {<br>
+<font color="#cdff8b"><b>int</b></font>&nbsp;main(<font color="#cdff8b"><b>int</b></font>&nbsp;argc, <font color="#cdff8b"><b>char</b></font>&nbsp;**argv) {<br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ff00"><b>int</b></font>&nbsp;i, j; <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;loop counters </b></font><font color="#00ffff"><b>*/</b></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;i, j; <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;loop counters </b></font><font color="#00ffff"><b>*/</b></font><br>
 <br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;Basic stuff; see elsewhere </b></font><font color="#00ffff"><b>*/</b></font><br>
@@ -42,8 +42,8 @@ pthread_t *children;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></fon
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;Spawn child threads. </b></font><font color="#00ffff"><b>*/</b></font><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>for</b></font>&nbsp;(i=<font color="#ff40ff"><b>0</b></font>&nbsp;; i&lt;num_threads ; i++){<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>if</b></font>(pthread_create(&amp;children[i], <font color="#ff40ff"><b>NULL</b></font>, (<font color="#00ff00"><b>void</b></font>&nbsp;*)&amp;iterate_input_image, <font color="#ff40ff"><b>NULL</b></font>)){<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;perror(<font color="#ff40ff"><b>&quot;pthread_create&quot;</b></font>); <font color="#00ffff"><b>/*</b></font><span style="background-color: #00ffff"><font color="#808080">FIXME</font></span><font color="#00ffff"><b>: fatal()</b></font><font color="#00ffff"><b>*/</b></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>if</b></font>(pthread_create(&amp;children[i], <font color="#ff40ff"><b>NULL</b></font>, (<font color="#cdff8b"><b>void</b></font>&nbsp;*)&amp;iterate_input_image, <font color="#ff40ff"><b>NULL</b></font>)){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;perror(<font color="#ff40ff"><b>&quot;pthread_create&quot;</b></font>); <font color="#00ffff"><b>/*</b></font><span style="background-color: #008080"><font color="#000000">FIXME</font></span><font color="#00ffff"><b>: fatal()</b></font><font color="#00ffff"><b>*/</b></font><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit(<font color="#ff40ff"><b>42</b></font>);<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
@@ -52,7 +52,7 @@ pthread_t *children;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></fon
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;Wait for all child threads to complete. </b></font><font color="#00ffff"><b>*/</b></font><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>for</b></font>&nbsp;(i=<font color="#ff40ff"><b>0</b></font>&nbsp;; i&lt;num_threads ; i++){<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>if</b></font>(pthread_join(children[i], <font color="#ff40ff"><b>NULL</b></font>)){<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;perror(<font color="#ff40ff"><b>&quot;pthread_join&quot;</b></font>); <font color="#00ffff"><b>/*</b></font><span style="background-color: #00ffff"><font color="#808080">FIXME</font></span><font color="#00ffff"><b>: fatal()</b></font><font color="#00ffff"><b>*/</b></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;perror(<font color="#ff40ff"><b>&quot;pthread_join&quot;</b></font>); <font color="#00ffff"><b>/*</b></font><span style="background-color: #008080"><font color="#000000">FIXME</font></span><font color="#00ffff"><b>: fatal()</b></font><font color="#00ffff"><b>*/</b></font><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit(<font color="#ff40ff"><b>41</b></font>);<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
@@ -73,15 +73,16 @@ pthread_t *children;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></fon
 <br>
 <br>
 <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;Iterate over the input image, populating the others along the way. </b></font><font color="#00ffff"><b>*/</b></font><br>
-<font color="#00ff00"><b>void</b></font>&nbsp;*iterate_input_image(<font color="#00ff00"><b>void</b></font>&nbsp;*arg){<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ff00"><b>int</b></font>&nbsp;i, j, c; <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;loop counters </b></font><font color="#00ffff"><b>*/</b></font><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ff00"><b>double</b></font>&nbsp;window_mean, window_variance, window_median, window_stddev;<br>
+<font color="#cdff8b"><b>void</b></font>&nbsp;*iterate_input_image(<font color="#cdff8b"><b>void</b></font>&nbsp;*arg){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;i, j, c; <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;loop counters </b></font><font color="#00ffff"><b>*/</b></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>double</b></font>&nbsp;window_mean, window_variance, window_median, window_stddev;<br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ff00"><b>int</b></font>&nbsp;child_id = get_child_id();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;child_id = get_child_id();<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c = <font color="#ff40ff"><b>0</b></font>;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>for</b></font>&nbsp;(i=<font color="#ff40ff"><b>0</b></font>; i&lt;rows; i++){<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>for</b></font>&nbsp;(j=<font color="#ff40ff"><b>0</b></font>; j&lt;cols; j++) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c++; <font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;fixes bug #002 </b></font><font color="#00ffff"><b>*/</b></font><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>if</b></font>&nbsp;(c % num_threads == child_id) {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;Choose the subregion of interest (window) around this pixel. </b></font><font color="#00ffff"><b>*/</b></font><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window_t window = select_window(window_size, i, j, rows, cols);<br>
@@ -96,7 +97,7 @@ pthread_t *children;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></fon
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window_stddev = sqrt(window_variance);<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;Calculate the enhanced value of this pixel. </b></font><font color="#00ffff"><b>*/</b></font><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ff00"><b>int</b></font>&nbsp;window_enhanced = calc_enhanced( Image[i*cols+j], mean, stddev, window_mean, window_stddev );<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;window_enhanced = calc_enhanced( Image[i*cols+j], mean, stddev, window_mean, window_stddev );<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></font><font color="#00ffff"><b>&nbsp;Assignments to the output images. </b></font><font color="#00ffff"><b>*/</b></font><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mean_Image[i*cols+j]&nbsp;&nbsp;&nbsp;&nbsp; = window_mean;<br>
@@ -111,9 +112,9 @@ pthread_t *children;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ffff"><b>/*</b></fon
 }<br>
 <br>
 <br>
-<font color="#00ff00"><b>int</b></font>&nbsp;get_child_id(<font color="#00ff00"><b>void</b></font>) {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ff00"><b>int</b></font>&nbsp;i;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#00ff00"><b>int</b></font>&nbsp;child_id = -<font color="#ff40ff"><b>1</b></font>;<br>
+<font color="#cdff8b"><b>int</b></font>&nbsp;get_child_id(<font color="#cdff8b"><b>void</b></font>) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;i;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#cdff8b"><b>int</b></font>&nbsp;child_id = -<font color="#ff40ff"><b>1</b></font>;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>for</b></font>&nbsp;(i=<font color="#ff40ff"><b>0</b></font>; i&lt;num_threads; i++) {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#ffff00"><b>if</b></font>( pthread_equal(pthread_self(), children[i]) ){<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;child_id = i;<br>
