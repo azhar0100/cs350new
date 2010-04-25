@@ -8,9 +8,11 @@
 #	2) Run the imEnhance program on each one,
 #	3)   at several window sizes (3x3, 5x5, 7x7, 9x9, etc.),
 #	4)     at several num_threads values (1, 2, 4, etc.),
-#	5) Place the output under ./test_output according to window size
+#	5) Place the output under ./test_output according to window size and num_threads
 
-imEnhance="./timEnhance"
+ imEnhance="./imEnhance"
+pimEnhance="./pimEnhance"
+timEnhance="./timEnhance"
 
 INPUT_DIR="./test_input"
 OUTPUT_DIR="./test_output"
@@ -19,31 +21,53 @@ time_cmd="/usr/bin/time"
 
 mkdir $OUTPUT_DIR
 if [ $? -ne 0 ]; then
-	exit
+	echo "FATAL: ${OUTPUT_DIR} already exists!"
+	exit -1
 fi;
 
-echo "real, user, sys, window_size, num_threads, image_name, exit_status" > $OUTPUT_DIR/gnu_time.txt
 
-for num_threads in 1 2 4 6; do	# num_threads
+for i in $INPUT_DIR/*.pgm; do
 	for w in 3 5 7 9; do	# window_size
+		i=`basename $i`
 
-		mkdir -p "${OUTPUT_DIR}/${num_threads}_threads/${w}x${w}"
+		## SINGLE-THREADED		
+		mkdir -p "${OUTPUT_DIR}/single_threaded/${w}x${w}"
+		TIME="'${i}', '${w}', '%e'"; export TIME
+		$time_cmd -a -o $OUTPUT_DIR/single_threaded.time  $imEnhance	\
+			$INPUT_DIR/$i						\
+			$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.avg.pgm	\
+			$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.var.pgm	\
+			$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.med.pgm	\
+			$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.enh.pgm	\
+			${w}
 
-		for i in $INPUT_DIR/*.pgm; do
-			i=`basename $i`
+		for num_threads in 1 2 4 6; do	# num_threads
 
-			TIME="%e ${num_threads}"
-			export TIME
+			## THREADS		
+			mkdir -p "${OUTPUT_DIR}/${num_threads}_threads/${w}x${w}"
+			TIME="'${i}', '${w}', '${num_threads}', '%e'"; export TIME
+			$time_cmd -a -o $OUTPUT_DIR/${num_threads}_threads.time $timEnhance	\
+				$INPUT_DIR/$i							\
+				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.avg.pgm		\
+				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.var.pgm		\
+				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.med.pgm		\
+				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.enh.pgm		\
+				${w}								\
+				${num_threads}
 
-			$time_cmd -a -o $OUTPUT_DIR/gnu_time.txt  $imEnhance		\
-				$INPUT_DIR/$i						\
-				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.avg.pgm			\
-				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.var.pgm			\
-				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.med.pgm			\
-				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.enh.pgm			\
-				${w}							\
+			## PROCESSES
+			mkdir -p "${OUTPUT_DIR}/${num_threads}_processes/${w}x${w}"
+			TIME="'${i}', '${w}', '${num_threads}', '%e'"; export TIME
+			$time_cmd -a -o $OUTPUT_DIR/${num_threads}_processes.time $pimEnhance	\
+				$INPUT_DIR/$i							\
+				$OUTPUT_DIR/${num_threads}_processes/${w}x${w}/$i.avg.pgm	\
+				$OUTPUT_DIR/${num_threads}_processes/${w}x${w}/$i.var.pgm	\
+				$OUTPUT_DIR/${num_threads}_processes/${w}x${w}/$i.med.pgm	\
+				$OUTPUT_DIR/${num_threads}_processes/${w}x${w}/$i.enh.pgm	\
+				${w}								\
 				${num_threads}
 		done
 	done
 done
 
+exit 0

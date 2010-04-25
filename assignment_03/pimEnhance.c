@@ -6,6 +6,10 @@
 
 #include "im_shared.h"		/* all the stuff shared between both versions (threads and processes) */
 
+typedef struct {
+	int row, col;
+	double mean_value, median_value, enhanced_value, stddev_value;
+} image_result_t;
 
 /* Prototypes */
 void *iterate_input_image(void);
@@ -13,7 +17,8 @@ int get_child_id(void);
 
 
 /* Global Variables */
-pid_t *children;	/* array of children	*/
+pid_t *children;	/* array of children			*/
+int fd[2];		/* pipe for child->parent communication	*/
 
 
 /* main() */
@@ -34,7 +39,14 @@ int main(int argc, char **argv) {
 		perror("Couldn't allocate memory");
 		exit(43);
 	}
-	
+
+
+	/* Create our pipe. */
+	unless( pipe(fd) == 0 ) {
+		perror("Error creating pipe");
+		exit(44);
+	}
+
 
 	/* Spawn child processes. */
 	for (i=0 ; i<num_threads ; i++){
@@ -46,11 +58,22 @@ int main(int argc, char **argv) {
 			case 0:
 				/* child process */
 				children[i] = getpid();
+				close(fd[0]); /* close unused read end. */
 				iterate_input_image(); /* will not return. */
 		}
 				
 	}
 
+	close(fd[1]); /* close unused write end. */
+
+	/* Read image data from children. */
+	image_result_t res;
+	while( read(fd[0], &res, sizeof(image_result_t)) > 0 ){
+		Mean_Image[res.row*cols+res.col]     = res.mean_value;
+		Median_Image[res.row*cols+res.col]   = res.median_value;
+		Enhanced_Image[res.row*cols+res.col] = res.enhanced_value;
+		Variance_Image[res.row*cols+res.col] = res.stddev_value;
+	}
 
 	/* Wait for all child threads to complete. */
 	for (i=0 ; i<num_threads ; i++){
@@ -85,6 +108,7 @@ void *iterate_input_image(void){
 	int child_id = get_child_id();
 
 	c = 0;
+	image_result_t res;
 	for (i=0; i<rows; i++){
 		for (j=0; j<cols; j++) {
 			c++; /* fixes bug #002 */
@@ -105,15 +129,21 @@ void *iterate_input_image(void){
 				int window_enhanced = calc_enhanced( Image[i*cols+j], mean, stddev, window_mean, window_stddev );
 
 				/* Assignments to the output images. */
-				Mean_Image[i*cols+j]     = window_mean;
-				Median_Image[i*cols+j]   = window_median;
-				Enhanced_Image[i*cols+j] = window_enhanced;
-				Variance_Image[i*cols+j] = window_stddev;
+				res.row = i;
+				res.col = j;
+				res.mean_value		= window_mean;
+				res.median_value	= window_median;
+				res.enhanced_value      = window_enhanced;
+				res.stddev_value        = window_stddev;
+				unless( write(fd[1], &res, sizeof(image_result_t)) == sizeof(image_result_t) ){
+					perror("Could not write pixel result to pipe");
+					exit(99);
+				}
 			}
 		}
 	}
 
-	return NULL;
+	exit(0);
 }
 
 

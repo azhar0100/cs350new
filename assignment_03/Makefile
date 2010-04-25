@@ -24,8 +24,9 @@ pimEnhance: pimEnhance.c iplib2New-modified.c im_shared.h
 #	^^ or you might need a debug build (ok, more likely, I'll need it.)
 
 clean:
-	rm -rf timEnhance pimEnhance test_output simple_thread simple_thread_pass_an_arg
+	rm -rf timEnhance pimEnhance test_output test_output.txt simple_thread simple_thread_pass_an_arg
 
 test: all
 	rm -rf test_output
-	./run_tests.sh
+	echo "See test_output.txt for output."
+	./run_tests.sh 2>&1 | tee test_output.txt
