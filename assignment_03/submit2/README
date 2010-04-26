@@ -1,0 +1,10 @@
+Have completed bonus problem, details have been added to design_doc.pdf
+
+I did not hear back from either of you about what might have been wrong with my statistics.
+
+Perhaps it was that I am scaling the variance, and other scaling issues; the output image format only supports pixel values
+ranging from 0 to 255; I have tried to make my output sensible in light of this.
+
+Enjoy.
+
+You will need to build and run these programs on Linux; they have been tested on the WVU CSEE shell servers.
