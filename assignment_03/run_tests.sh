@@ -31,19 +31,25 @@ for i in $INPUT_DIR/*.pgm; do
 		i=`basename $i`
 
 		## SINGLE-THREADED		
+		echo "Single-threaded, window_size = ${w}"
 		mkdir -p "${OUTPUT_DIR}/single_threaded/${w}x${w}"
 		TIME="'${i}', '${w}', '%e'"; export TIME
 		$time_cmd -a -o $OUTPUT_DIR/single_threaded.time  $imEnhance	\
 			$INPUT_DIR/$i						\
-			$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.avg.pgm	\
-			$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.var.pgm	\
-			$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.med.pgm	\
-			$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.enh.pgm	\
+			$OUTPUT_DIR/single_threaded/${w}x${w}/$i.avg.pgm	\
+			$OUTPUT_DIR/single_threaded/${w}x${w}/$i.var.pgm	\
+			$OUTPUT_DIR/single_threaded/${w}x${w}/$i.med.pgm	\
+			$OUTPUT_DIR/single_threaded/${w}x${w}/$i.enh.pgm	\
 			${w}
+		if [ $? -ne 0 ]; then
+			echo "FATAL: Last run returned non-zero status."
+			exit -1
+		fi
 
 		for num_threads in 1 2 4 6; do	# num_threads
 
 			## THREADS		
+			echo "Threads: ${num_threads}, window_size = ${w}"
 			mkdir -p "${OUTPUT_DIR}/${num_threads}_threads/${w}x${w}"
 			TIME="'${i}', '${w}', '${num_threads}', '%e'"; export TIME
 			$time_cmd -a -o $OUTPUT_DIR/${num_threads}_threads.time $timEnhance	\
@@ -54,8 +60,13 @@ for i in $INPUT_DIR/*.pgm; do
 				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.enh.pgm		\
 				${w}								\
 				${num_threads}
+			if [ $? -ne 0 ]; then
+				echo "FATAL: Last run returned non-zero status."
+				exit -1
+			fi
 
 			## PROCESSES
+			echo "Processes: ${num_threads}, window_size = ${w}"
 			mkdir -p "${OUTPUT_DIR}/${num_threads}_processes/${w}x${w}"
 			TIME="'${i}', '${w}', '${num_threads}', '%e'"; export TIME
 			$time_cmd -a -o $OUTPUT_DIR/${num_threads}_processes.time $pimEnhance	\
@@ -66,6 +77,10 @@ for i in $INPUT_DIR/*.pgm; do
 				$OUTPUT_DIR/${num_threads}_processes/${w}x${w}/$i.enh.pgm	\
 				${w}								\
 				${num_threads}
+			if [ $? -ne 0 ]; then
+				echo "FATAL: Last run returned non-zero status."
+				exit -1
+			fi
 		done
 	done
 done

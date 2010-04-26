@@ -156,7 +156,6 @@ void check_args(int argc, char **argv) {
 		fprintf(stderr, "Number of threads must be integer >= 1 and <= 16.\n");
 		exit(250);
 	}
-	printf("We will be processing using ** %d ** child threads.\n", num_threads);
 }
 
 

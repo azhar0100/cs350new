@@ -28,5 +28,4 @@ clean:
 
 test: all
 	rm -rf test_output
-	echo "See test_output.txt for output."
 	./run_tests.sh 2>&1 | tee test_output.txt
