@@ -152,8 +152,8 @@ void check_args(int argc, char **argv) {
 		exit(251);
 	}
 	num_threads = atoi(argv[7]);
-	if ( num_threads < 1 || num_threads > 16 ){
-		fprintf(stderr, "Number of threads must be integer >= 1 and <= 16.\n");
+	if ( num_threads < 1 ){
+		fprintf(stderr, "Number of threads must be integer >= 1.\n");
 		exit(250);
 	}
 }
