@@ -1,0 +1,8 @@
+set multiplot
+set xtics 0, 50, 100
+set xtics add (2)
+set mxtics 1
+plot 'test_output/times/bg448x448.pgm/threaded_3x3.gnuplot' with lines noautoscale
+plot 'test_output/times/bg448x448.pgm/threaded_5x5.gnuplot' with lines noautoscale
+plot 'test_output/times/bg448x448.pgm/threaded_7x7.gnuplot' with lines
+unset multiplot

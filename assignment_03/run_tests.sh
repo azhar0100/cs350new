@@ -30,36 +30,37 @@ for i in $INPUT_DIR/*.pgm; do
 	for w in 3 5 7; do  # window_size
 
 		i=`basename $i`
+		mkdir -p $OUTPUT_DIR/times/$i
 
-		## SINGLE-THREADED		
-		echo "Single-threaded, window_size = ${w}"
-		mkdir -p "${OUTPUT_DIR}/single_threaded/${w}x${w}"
-		TIME="'${i}', '${w}', '%e'"; export TIME
-		$time_cmd -a -o $OUTPUT_DIR/single_threaded.time  $imEnhance	\
-			$INPUT_DIR/$i						\
-			$OUTPUT_DIR/single_threaded/${w}x${w}/$i.avg.pgm	\
-			$OUTPUT_DIR/single_threaded/${w}x${w}/$i.var.pgm	\
-			$OUTPUT_DIR/single_threaded/${w}x${w}/$i.med.pgm	\
-			$OUTPUT_DIR/single_threaded/${w}x${w}/$i.enh.pgm	\
-			${w}
-		if [ $? -ne 0 ]; then
-			echo "FATAL: Last run returned non-zero status."
-			exit -1
-		fi
+#		## SINGLE-THREADED		
+#		echo "Single-threaded, window_size = ${w}"
+#		mkdir -p "${OUTPUT_DIR}/single_threaded/${w}x${w}"
+#		TIME="%e"; export TIME
+#		$time_cmd -a -o $OUTPUT_DIR/times/$i/single_threaded_${w}x${w}.gnuplot $imEnhance	\
+#			$INPUT_DIR/$i									\
+#			$OUTPUT_DIR/single_threaded/${w}x${w}/$i.avg.pgm				\
+#			$OUTPUT_DIR/single_threaded/${w}x${w}/$i.var.pgm				\
+#			$OUTPUT_DIR/single_threaded/${w}x${w}/$i.med.pgm				\
+#			$OUTPUT_DIR/single_threaded/${w}x${w}/$i.enh.pgm				\
+#			${w}
+#		if [ $? -ne 0 ]; then
+#			echo "FATAL: Last run returned non-zero status."
+#			exit -1
+#		fi
 
-		for num_threads in 1 2 4 6 8 10 20 40 60 80 100; do  # num_threads
+		for num_threads in 1 2 3 4 5 6 8 10 20 40 60 80 100; do  # num_threads
 
 			## THREADS		
 			echo "Threads: ${num_threads}, window_size = ${w}"
 			mkdir -p "${OUTPUT_DIR}/${num_threads}_threads/${w}x${w}"
-			TIME="'${i}', '${w}', '${num_threads}', '%e'"; export TIME
-			$time_cmd -a -o $OUTPUT_DIR/threaded.time $timEnhance		\
-				$INPUT_DIR/$i						\
-				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.avg.pgm	\
-				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.var.pgm	\
-				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.med.pgm	\
-				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.enh.pgm	\
-				${w}							\
+			TIME="${num_threads} %e"; export TIME
+			$time_cmd -a -o $OUTPUT_DIR/times/$i/threaded_${w}x${w}.gnuplot $timEnhance	\
+				$INPUT_DIR/$i								\
+				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.avg.pgm			\
+				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.var.pgm			\
+				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.med.pgm			\
+				$OUTPUT_DIR/${num_threads}_threads/${w}x${w}/$i.enh.pgm			\
+				${w}									\
 				${num_threads}
 			if [ $? -ne 0 ]; then
 				echo "FATAL: Last run returned non-zero status."
@@ -69,14 +70,14 @@ for i in $INPUT_DIR/*.pgm; do
 			## PROCESSES
 			echo "Processes: ${num_threads}, window_size = ${w}"
 			mkdir -p "${OUTPUT_DIR}/${num_threads}_processes/${w}x${w}"
-			TIME="'${i}', '${w}', '${num_threads}', '%e'"; export TIME
-			$time_cmd -a -o $OUTPUT_DIR/processes.time $pimEnhance			\
-				$INPUT_DIR/$i							\
-				$OUTPUT_DIR/${num_threads}_processes/${w}x${w}/$i.avg.pgm	\
-				$OUTPUT_DIR/${num_threads}_processes/${w}x${w}/$i.var.pgm	\
-				$OUTPUT_DIR/${num_threads}_processes/${w}x${w}/$i.med.pgm	\
-				$OUTPUT_DIR/${num_threads}_processes/${w}x${w}/$i.enh.pgm	\
-				${w}								\
+			TIME="${num_threads} %e"; export TIME
+			$time_cmd -a -o $OUTPUT_DIR/times/$i/processes_${w}x${w}.gnuplot $pimEnhance	\
+				$INPUT_DIR/$i								\
+				$OUTPUT_DIR/${num_threads}_processes/${w}x${w}/$i.avg.pgm		\
+				$OUTPUT_DIR/${num_threads}_processes/${w}x${w}/$i.var.pgm		\
+				$OUTPUT_DIR/${num_threads}_processes/${w}x${w}/$i.med.pgm		\
+				$OUTPUT_DIR/${num_threads}_processes/${w}x${w}/$i.enh.pgm		\
+				${w}									\
 				${num_threads}
 			if [ $? -ne 0 ]; then
 				echo "FATAL: Last run returned non-zero status."
